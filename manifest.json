@@ -2,7 +2,7 @@
   "name": "Meta 4X Trading",
   "short_name": "Meta 4X",
   "description": "Future of Auto Trading with Meta 4X Trading",
-  "start_url": "/index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0d121c",
   "theme_color": "#14b8a6",
