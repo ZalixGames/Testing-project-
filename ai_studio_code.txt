@@ -1,0 +1,28 @@
+{
+  "name": "Meta 4X Trading",
+  "short_name": "Meta 4X",
+  "description": "Future of Auto Trading with Meta 4X Trading",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0d121c",
+  "theme_color": "#14b8a6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
