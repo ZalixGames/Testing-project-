@@ -1,0 +1,1912 @@
+
+<!DOCTYPE html>
+<html lang="en"> <!-- Default theme is now light -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Meta 4X Trading</title>
+
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- PWA Theme and Icons for iOS -->
+    <meta name="theme-color" content="#14b8a6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Tailwind CSS dark mode configuration
+        tailwind.config = {
+            darkMode: 'class', // Enable class-based dark mode
+        }
+    </script>
+    <style>
+        /* Scrollbar styles for dark mode */
+        .dark ::-webkit-scrollbar { width: 8px; }
+        .dark ::-webkit-scrollbar-track { background: #0d121c; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #374151; border-radius: 10px; border: 2px solid #0d121c; }
+        
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-overlay { transition: opacity 0.3s ease-in-out; }
+
+        /* Active nav link styles for both light and dark modes */
+        .nav-link.active-nav, .sidebar-link.active-nav { color: #14b8a6; /* teal-500 */ background-color: rgba(13, 148, 136, 0.1); }
+        .dark .nav-link.active-nav, .dark .sidebar-link.active-nav { color: #2dd4bf; /* teal-400 */ background-color: rgba(45, 212, 191, 0.1); }
+
+        .form-input, .form-select, .form-textarea { 
+            background-color: #e5e7eb; border: 2px solid transparent; border-radius: 0.5rem; 
+            padding: 0.75rem 1rem; color: #111827; width: 100%; transition: all 0.2s ease-in-out; 
+        }
+        .dark .form-input, .dark .form-select, .dark .form-textarea { 
+            background-color: #2c364d; color: white; 
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { 
+            outline: none; border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2); 
+        }
+        .dark .form-input:focus, .dark .form-select:focus, .dark .form-textarea:focus { 
+             border-color: #2dd4bf; box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.2); 
+        }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { position: relative; width: 90%; max-width: 450px; }
+        .text-modal-content { max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        
+        .no-data-placeholder { text-align: center; padding: 4rem 1rem; border-radius: 1rem; border: 1px dashed #d1d5db; }
+        .dark .no-data-placeholder { background-color: #1a2233; border: 1px dashed #2c364d; }
+        .no-data-placeholder svg { width: 100px; height: 100px; margin: 0 auto 1.5rem; color: #d1d5db; }
+        .dark .no-data-placeholder svg { color: #2c364d; }
+        .no-data-placeholder h3 { font-size: 1.25rem; font-weight: bold; }
+        .no-data-placeholder p { color: #6b7280; }
+        .dark .no-data-placeholder p { color: #9ca3af; }
+
+        .filter-btn { background-color: #e5e7eb; color: #6b7280; padding: 6px 12px; border-radius: 8px; font-size: 0.875rem; transition: all 0.2s; cursor: pointer; }
+        .dark .filter-btn { background-color: #2c364d; color: #9ca3af; }
+        .filter-btn.active { background-color: #14b8a6; color: #ffffff; font-weight: bold; }
+        .dark .filter-btn.active { background-color: #2dd4bf; }
+        .buy-plan-btn { cursor: pointer; }
+        
+        .promo-banner {
+            position: absolute; top: 10px; right: -35px; background: #ef4444; color: white;
+            padding: 4px 40px; font-weight: bold; font-size: 1rem; transform: rotate(45deg);
+            transform-origin: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3); text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .plan-card { overflow: hidden; }
+
+        /* --- Marquee Animation for Partners --- */
+        .marquee-container {
+            overflow: hidden; position: relative; width: 100%;
+            -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1) 10%, rgba(0,0,0,1) 90%, rgba(0,0,0,0));
+            mask-image: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,1) 10%, rgba(0,0,0,1) 90%, rgba(0,0,0,0));
+        }
+        .marquee-content { display: flex; width: max-content; animation: marquee 40s linear infinite; }
+        .marquee-content:hover { animation-play-state: paused; }
+        .marquee-item { flex-shrink: 0; padding: 0 2.5rem; display: flex; align-items: center; justify-content: center; }
+        .dark .marquee-item img { filter: grayscale(1) brightness(1.5); }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        /* Style for the Google Sign-in button */
+        .google-btn {
+            display: flex; align-items: center; justify-content: center; width: 100%; padding: 0.75rem;
+            border-radius: 0.5rem; font-weight: bold; transition: background-color 0.2s;
+            background-color: #ffffff; color: #374151; border: 1px solid #d1d5db;
+        }
+        .dark .google-btn { background-color: #374151; color: #ffffff; border-color: #4b5563; }
+        .google-btn:hover { background-color: #f3f4f6; }
+        .dark .google-btn:hover { background-color: #4b5563; }
+        .google-btn svg { width: 20px; height: 20px; margin-right: 12px; }
+        
+        .divider-text { display: flex; align-items: center; text-align: center; color: #9ca3af; font-size: 0.875rem; margin: 1rem 0; }
+        .divider-text::before, .divider-text::after { content: ''; flex: 1; border-bottom: 1px solid #d1d5db; }
+        .dark .divider-text::before, .dark .divider-text::after { border-color: #4b5563; }
+        .divider-text:not(:empty)::before { margin-right: .5em; }
+        .divider-text:not(:empty)::after { margin-left: .5em; }
+
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+
+    <!-- Landing Page Section -->
+    <div id="landing-page">
+        <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-30 shadow-md">
+            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                <h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Meta 4X Trading</h1>
+                <div class="flex items-center">
+                    <button id="login-btn-landing" class="bg-teal-500 text-white font-bold text-sm py-2 px-5 rounded-lg hover:bg-teal-600">Login</button>
+                    <button id="signup-btn-landing" class="ml-2 bg-blue-600 text-white font-bold text-sm py-2 px-5 rounded-lg hover:bg-blue-700">Sign Up</button>
+                    <button id="theme-toggle-landing" class="ml-4 text-gray-600 dark:text-white text-2xl"><i class="ri-moon-line"></i></button>
+                </div>
+            </div>
+        </header>
+        <main class="container mx-auto px-4 md:px-6 py-12">
+            <section class="text-center py-16">
+                <h2 class="text-5xl font-extrabold mb-4">Future of Auto Trading with <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Meta 4X</span></h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8">Discover our powerful investment plans and start building your wealth today with cutting-edge technology and expert support.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button id="get-started-btn" class="bg-teal-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-teal-600 transition-colors duration-300 text-lg w-full sm:w-auto">Get Started Now</button>
+                    <button id="install-app-btn-landing" style="display: none;" class="bg-gray-700 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 border border-gray-600 dark:border-gray-700 transition-colors duration-300 text-lg flex items-center justify-center w-full sm:w-auto"><i class="ri-download-cloud-2-line mr-2"></i> Install App</button>
+                </div>
+            </section>
+            <section class="py-12">
+                <h3 class="text-3xl font-bold text-center mb-10">Our Investment Plans</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto" id="plans-preview-landing"></div>
+            </section>
+            <section class="py-12">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg"><i class="ri-rocket-line text-4xl text-teal-500 dark:text-teal-400 mb-3"></i><h4 class="text-2xl font-bold mb-2">100% Fast Service</h4><p class="text-gray-600 dark:text-gray-400">Experience seamless and rapid transactions.</p></div>
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg"><i class="ri-shield-check-line text-4xl text-teal-500 dark:text-teal-400 mb-3"></i><h4 class="text-2xl font-bold mb-2">100% Trusted</h4><p class="text-gray-600 dark:text-gray-400">Your security and trust are our top priority.</p></div>
+                    <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg"><i class="ri-customer-service-2-line text-4xl text-teal-500 dark:text-teal-400 mb-3"></i><h4 class="text-2xl font-bold mb-2">24/7 Customer Support</h4><p class="text-gray-600 dark:text-gray-400">Our dedicated support team is available to assist you.</p></div>
+                </div>
+            </section>
+            <section id="partners-section" class="py-12">
+                <h3 class="text-3xl font-bold text-center mb-10">Our Partners</h3>
+                <div id="partners-container" class="max-w-6xl mx-auto">
+                    <!-- Partner logos will be injected here by JavaScript -->
+                </div>
+            </section>
+        </main>
+        
+        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16">
+            <div class="container mx-auto px-4 md:px-6 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                    <div>
+                        <h3 class="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mb-3">Meta 4X Trading</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Invest in your future with cutting-edge technology and expert support.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 dark:text-white mb-3">Quick Links</h4>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400">Home</a></li>
+                            <li><a href="#plans-preview-landing" class="text-gray-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400 scroll-to">Investment Plans</a></li>
+                            <li><a href="#" id="footer-login-btn" class="text-gray-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400">Login</a></li>
+                            <li><a href="#" class="footer-text-link text-gray-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400" data-modal-name="privacy">Privacy Policy</a></li>
+                            <li><a href="#" class="footer-text-link text-gray-600 dark:text-gray-400 hover:text-teal-500 dark:hover:text-teal-400" data-modal-name="terms">Terms & Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 dark:text-white mb-3">Contact Us</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Support Email: <a href="mailto:support.meta4x@email-temp.com" class="hover:text-teal-500 dark:hover:text-teal-400">support.meta4x@email-temp.com</a></p>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Address: Level 25, Tower 2, Boulevard Plaza, Downtown Dubai, UAE</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 dark:border-gray-700 mt-8 pt-6 text-center text-gray-500 dark:text-gray-500 text-sm">
+                    <p>&copy; <span id="copyright-year"></span> Meta 4X Trading. All Rights Reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Main Application (Dashboard) - Initially hidden -->
+    <div id="app-dashboard" class="hidden">
+        <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-72 bg-white dark:bg-gray-800 text-gray-900 dark:text-white z-50 p-6 shadow-lg -translate-x-full md:translate-x-0 border-r border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center mb-8"><h1 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">Meta 4X Trading</h1><button id="close-sidebar" class="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-2xl md:hidden"><i class="ri-close-line"></i></button></div>
+            <nav class="flex flex-col space-y-2">
+                <a href="#dashboard" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="dashboard"><div class="flex items-center"><i class="ri-home-5-line mr-4"></i>Home</div><i class="ri-arrow-right-s-line"></i></a>
+                <a href="#plans" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="plans"><div class="flex items-center"><i class="ri-line-chart-line mr-4"></i>My Plans</div><i class="ri-arrow-right-s-line"></i></a>
+                <a href="#account-statement" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="account-statement"><div class="flex items-center"><i class="ri-file-list-3-line mr-4"></i>Account Statement</div><i class="ri-arrow-right-s-line"></i></a>
+                <a href="#recharge-record" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="recharge-record"><div class="flex items-center"><i class="ri-history-line mr-4"></i>Recharge Record</div><i class="ri-arrow-right-s-line"></i></a>
+                <a href="#withdraw-record" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="withdraw-record"><div class="flex items-center"><i class="ri-time-line mr-4"></i>Withdraw Record</div><i class="ri-arrow-right-s-line"></i></a>
+                <a href="#change-password" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="change-password"><div class="flex items-center"><i class="ri-lock-password-line mr-4"></i>Change Password</div><i class="ri-arrow-right-s-line"></i></a>
+                <a href="#" id="logout-btn-sidebar" class="sidebar-link flex items-center justify-between py-3 px-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white rounded-md" data-target="logout"><div class="flex items-center"><i class="ri-logout-box-r-line mr-4"></i>Logout</div></a>
+            </nav>
+        </aside>
+        <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-60 z-40 opacity-0 pointer-events-none md:hidden"></div>
+        <div class="flex-1 md:ml-72">
+            <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-30 shadow-md">
+                <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                    <button id="open-sidebar" class="text-gray-800 dark:text-white text-2xl md:hidden"><i class="ri-menu-line"></i></button>
+                    <h2 id="page-title" class="text-lg font-bold text-gray-900 dark:text-white"></h2>
+                    <button id="theme-toggle-dashboard" class="text-gray-600 dark:text-white text-2xl"><i class="ri-moon-line"></i></button>
+                </div>
+            </header>
+            <main class="flex-1 flex flex-col overflow-hidden"><div id="main-content-container" class="flex-1 p-4 md:p-6 overflow-y-auto pb-24"></div></main>
+        </div>
+        <nav class="md:hidden fixed bottom-0 inset-x-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-t-lg z-20 border-t border-gray-200 dark:border-gray-700/50">
+            <div class="flex justify-around">
+                <a href="#dashboard" class="nav-link w-full text-center py-2 text-gray-500 dark:text-gray-400" data-target="dashboard"><i class="ri-home-line text-2xl"></i><span class="block text-xs">Home</span></a>
+                <a href="#plans" class="nav-link w-full text-center py-2 text-gray-500 dark:text-gray-400" data-target="plans"><i class="ri-line-chart-line text-2xl"></i><span class="block text-xs">My Plans</span></a>
+                <a href="#wallet" class="nav-link w-full text-center py-2 text-gray-500 dark:text-gray-400" data-target="wallet"><i class="ri-wallet-3-line text-2xl"></i><span class="block text-xs">Wallet</span></a>
+                <a href="#team" class="nav-link w-full text-center py-2 text-gray-500 dark:text-gray-400" data-target="team"><i class="ri-team-line text-2xl"></i><span class="block text-xs">Team</span></a>
+                <a href="#profile" class="nav-link w-full text-center py-2 text-gray-500 dark:text-gray-400" data-target="profile"><i class="ri-user-line text-2xl"></i><span class="block text-xs">Profile</span></a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <div id="login-modal" class="modal-overlay"><div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-lg"><button id="close-login-modal" class="absolute top-4 right-4 text-2xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">&times;</button><h2 class="text-2xl font-bold mb-6 text-center">Login</h2><form id="login-form" class="space-y-4"><input type="email" id="login-email" placeholder="Email" class="form-input" required><input type="password" id="login-password" placeholder="Password" class="form-input" required><button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">Login</button></form><p class="text-center mt-4"><a href="#" id="forgot-password-link" class="text-sm text-teal-500 dark:text-teal-400 hover:underline">Forgot Password?</a></p><div class="divider-text">OR</div><button id="google-login-btn" class="google-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.19,4.73C14.76,4.73 16.04,5.7 17.06,6.58L19.37,4.42C17.22,2.56 14.85,1.5 12.19,1.5C6.92,1.5 3,6.38 3,12C3,17.64 6.92,22.5 12.19,22.5C17.6,22.5 21.5,18.33 21.5,12.33C21.5,11.76 21.45,11.43 21.35,11.1Z"></path></svg>Continue with Google</button><p id="login-status" class="text-sm mt-2 text-center"></p></div></div>
+    <div id="signup-modal" class="modal-overlay"><div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-lg"><button id="close-signup-modal" class="absolute top-4 right-4 text-2xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">&times;</button><h2 class="text-2xl font-bold mb-6 text-center">Create Account</h2><form id="signup-form" class="space-y-4"><input type="text" id="signup-username" placeholder="Username" class="form-input" required><input type="email" id="signup-email" placeholder="Email" class="form-input" required><input type="password" id="signup-password" placeholder="Password" class="form-input" required><input type="password" id="signup-confirm-password" placeholder="Confirm Password" class="form-input" required><input type="text" id="signup-referral" placeholder="Referral Code (Optional)" class="form-input"><button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">Sign Up</button></form><div class="divider-text">OR</div><button id="google-signup-btn" class="google-btn"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C8.36,19.27 5,16.25 5,12C5,7.9 8.2,4.73 12.19,4.73C14.76,4.73 16.04,5.7 17.06,6.58L19.37,4.42C17.22,2.56 14.85,1.5 12.19,1.5C6.92,1.5 3,6.38 3,12C3,17.64 6.92,22.5 12.19,22.5C17.6,22.5 21.5,18.33 21.5,12.33C21.5,11.76 21.45,11.43 21.35,11.1Z"></path></svg>Continue with Google</button><p id="signup-status" class="text-sm mt-4 text-center"></p></div></div>
+    <div id="profile-edit-modal" class="modal-overlay"><div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-lg"><button id="close-profile-modal" class="absolute top-4 right-4 text-2xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">&times;</button><h2 class="text-2xl font-bold mb-6 text-center">Edit Profile</h2><form id="profile-update-form" class="space-y-4"><div><label class="block text-sm text-gray-600 dark:text-gray-400">Full Name</label><input type="text" id="profile-name" class="form-input"></div><div><label class="block text-sm text-gray-600 dark:text-gray-400">Address</label><input type="text" id="profile-address" class="form-input"></div><div><label class="block text-sm text-gray-600 dark:text-gray-400">Age</label><input type="number" id="profile-age" class="form-input"></div><div><label class="block text-sm text-gray-600 dark:text-gray-400">Date of Birth</label><input type="date" id="profile-dob" class="form-input"></div><button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">Update Profile</button></form></div></div>
+    <div id="forgot-password-modal" class="modal-overlay"><div class="modal-content bg-white dark:bg-gray-800 p-8 rounded-lg"><button id="close-forgot-modal" class="absolute top-4 right-4 text-2xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">&times;</button><h2 class="text-2xl font-bold mb-6 text-center">Reset Password</h2><form id="forgot-form" class="space-y-4"><p class="text-sm text-gray-600 dark:text-gray-400 text-center">Enter your email and we will send you a reset link.</p><input type="email" id="forgot-email" placeholder="Email" class="form-input" required><button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">Send Reset Link</button></form><p id="forgot-status" class="text-green-500 text-sm mt-4 text-center"></p></div></div>
+    <div id="alert-modal" class="modal-overlay" style="justify-content: center; align-items: center;"><div class="modal-content text-center bg-white dark:bg-gray-800 p-8 rounded-lg"><h3 id="alert-title" class="text-xl font-bold mb-4"></h3><p id="alert-message" class="text-gray-700 dark:text-gray-300 mb-6"></p><button id="alert-close-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700">OK</button></div></div>
+    <div id="text-content-modal" class="modal-overlay">
+        <div class="modal-content text-modal-content bg-white dark:bg-gray-800 p-8 rounded-lg">
+            <button id="close-text-modal" class="absolute top-4 right-4 text-2xl text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">&times;</button>
+            <h2 id="text-modal-title" class="text-2xl font-bold mb-6"></h2>
+            <div id="text-modal-body" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"></div>
+        </div>
+    </div>
+    
+    <svg id="no-data-svg" style="display: none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.888 4.933l1.556-1.556L18.067 17l-1.556 1.556zM21 3.784L19.216 2 13 8.216l1.784 1.784L21 3.784zM12.91 18.082l-1.41-1.41-1.41 1.41-1.41-1.41-1.41 1.41-1.41-1.41-1.41 1.41L3 16.672V21h4.328l1.41-1.41-1.41-1.41 1.41-1.41 1.41 1.41 1.41-1.41 1.41 1.41 1.41-1.41L18.067 17 15 13.933l-2.09 2.09-.001 2.059zm-3.82-10L12 5.172 14.828 8 12 10.828 9.09 7.918zM4.067 3l-1.556.002L1 4.557V10h1v-.557l1.555-1.556L5.11 9.443l.002-1.555L4.067 3z"></path></svg>
+    
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            sendEmailVerification,
+            sendPasswordResetEmail,
+            updatePassword,
+            EmailAuthProvider,
+            reauthenticateWithCredential
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getDatabase, 
+            ref, 
+            onValue, 
+            get, 
+            update, 
+            push,
+            query,
+            orderByChild,
+            equalTo,
+            set
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzn3GzuKD2xdiekly5DL9cSUZBTD3EKhw",
+            authDomain: "meta-4x-trading.firebaseapp.com",
+            databaseURL: "https://meta-4x-trading-default-rtdb.firebaseio.com",
+            projectId: "meta-4x-trading",
+            storageBucket: "meta-4x-trading.firebasestorage.app",
+            messagingSenderId: "341116529385",
+            appId: "1:341116529385:web:6cd6119de0fb6166dcde78",
+            measurementId: "G-8MKY18LHW4"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // --- Global Variables ---
+        let appSettings = {};
+        let currentUserData = null;
+        let earningsChart = null;
+        let unsubscribeUser;
+        let activeTimers = {};
+        let referralCodeFromUrl = null;
+        let deferredInstallPrompt = null; // For PWA installation prompt
+
+        // --- CORE APP INITIALIZATION ---
+        async function initializeAppLogic() {
+            try {
+                const settingsSnapshot = await get(ref(database, 'settings'));
+                const defaultSettings = {
+                    plans: {}, previewPlans: {}, sliderImages: [], 
+                    profileLinks: {
+                        support: '#',
+                        help: '<h1>Help Center</h1><p>This content can be edited from the admin panel.</p>',
+                        privacy: '<h1>Privacy Policy</h1><p>This content can be edited from the admin panel.</p>',
+                        terms: '<h1>Terms & Conditions</h1><p>This content can be edited from the admin panel.</p>'
+                    },
+                    referralCommission: { level1: 10, level2: 5, level3: 2 },
+                    referral: { commissionRouting: 'separate', commissionOnEarnings: true, unlockThreshold: 500 },
+                    partners: {},
+                    depositWallets: [{ network: 'TRC20', address: 'PLEASE_SET_IN_ADMIN_PANEL' }],
+                    withdrawal: { minimumAmount: 10, methods: [{ network: 'TRC20', fee: 1 }] },
+                    deposit: { minimumAmount: 30 }
+                };
+                appSettings = settingsSnapshot.exists() ? { ...defaultSettings, ...settingsSnapshot.val() } : defaultSettings;
+
+            } catch (error) {
+                console.error("Could not fetch app settings:", error);
+                 appSettings = { 
+                    plans: {}, previewPlans: {}, sliderImages: [], 
+                    profileLinks: { support: '#', help: '<p>Error loading content.</p>', privacy: '<p>Error loading content.</p>', terms: '<p>Error loading content.</p>' },
+                    referralCommission: { level1: 10, level2: 5, level3: 2 },
+                    referral: { commissionRouting: 'separate', commissionOnEarnings: true, unlockThreshold: 500 },
+                    partners: {},
+                    depositWallets: [{ network: 'TRC20', address: 'NETWORK_ERROR_CHECK_CONSOLE' }],
+                    withdrawal: { minimumAmount: 10, methods: [{ network: 'TRC20', fee: 1 }] },
+                    deposit: { minimumAmount: 30 }
+                };
+            }
+
+            onAuthStateChanged(auth, user => {
+                if (unsubscribeUser) {
+                    unsubscribeUser();
+                }
+                Object.values(activeTimers).forEach(clearInterval);
+                activeTimers = {};
+
+                if (user && user.emailVerified) {
+                    const userRef = ref(database, 'users/' + user.uid);
+                    let isInitialLoad = true; 
+                    
+                    unsubscribeUser = onValue(userRef, (snapshot) => {
+                        if (!snapshot.exists()) { 
+                            console.warn("User authenticated but no database entry found. This can happen after account creation before data syncs. Logging out to prevent errors.");
+                            handleLogout();
+                            return;
+                        }
+                        currentUserData = snapshot.val();
+
+                        if (isInitialLoad) {
+                            showDashboard();
+                            isInitialLoad = false;
+                        } else {
+                            const currentHash = window.location.hash.substring(1) || 'dashboard';
+                            if (document.getElementById('app-dashboard').style.display === 'block') {
+                               loadPage(currentHash);
+                            }
+                        }
+                    }, (error) => {
+                        console.error("Firebase permission denied or other error:", error);
+                        showAlert("Access Error", "Could not read your user data. This might be a permission issue. Please log in again.");
+                        handleLogout();
+                    });
+                } else {
+                    if (user && !user.emailVerified) {
+                        showAlert("Verification Required", "A verification link was sent to your email. Please verify your account to log in. Check your spam folder if you can't find it.");
+                        signOut(auth);
+                    }
+                    currentUserData = null;
+                    showLandingPage();
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            referralCodeFromUrl = urlParams.get('ref');
+            if (referralCodeFromUrl) {
+                const referralInput = document.getElementById('signup-referral');
+                if (referralInput) {
+                    referralInput.value = referralCodeFromUrl;
+                    referralInput.readOnly = true;
+                }
+            }
+            initializeAppLogic();
+            setupStaticListeners();
+            setupThemeToggle();
+            setupPWAInstallListeners();
+        });
+
+        // --- PWA INSTALLATION LOGIC ---
+        function setupPWAInstallListeners() {
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredInstallPrompt = e;
+                const installBtnLanding = document.getElementById('install-app-btn-landing');
+                if (installBtnLanding) {
+                    installBtnLanding.style.display = 'inline-flex';
+                }
+                const installBtnDashboard = document.getElementById('install-app-btn-dashboard');
+                if(installBtnDashboard) {
+                    installBtnDashboard.style.display = 'block';
+                }
+            });
+
+            window.addEventListener('appinstalled', () => {
+                deferredInstallPrompt = null;
+                const installBtnLanding = document.getElementById('install-app-btn-landing');
+                if (installBtnLanding) installBtnLanding.style.display = 'none';
+                const installBtnDashboard = document.getElementById('install-app-btn-dashboard');
+                if (installBtnDashboard) installBtnDashboard.style.display = 'none';
+                console.log('PWA was installed successfully.');
+            });
+        }
+
+        async function handleAppInstall() {
+            if (!deferredInstallPrompt) {
+                showAlert("Installation Not Available", "The app installation prompt is not available. You might have already installed the app, or your browser might not support this feature.");
+                return;
+            }
+            deferredInstallPrompt.prompt();
+            const { outcome } = await deferredInstallPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt.');
+            } else {
+                console.log('User dismissed the install prompt.');
+            }
+            deferredInstallPrompt = null;
+            // Hide the buttons after the prompt is used
+            const installBtnLanding = document.getElementById('install-app-btn-landing');
+            if (installBtnLanding) installBtnLanding.style.display = 'none';
+            const installBtnDashboard = document.getElementById('install-app-btn-dashboard');
+            if (installBtnDashboard) installBtnDashboard.style.display = 'none';
+        }
+
+        // --- THEME TOGGLE ---
+        function setupThemeToggle() {
+            const themeToggleLanding = document.getElementById('theme-toggle-landing');
+            const themeToggleDashboard = document.getElementById('theme-toggle-dashboard');
+            const htmlEl = document.documentElement;
+            const sunIcon = 'ri-sun-line';
+            const moonIcon = 'ri-moon-line';
+
+            function updateIcons(isDark) {
+                const iconClass = isDark ? sunIcon : moonIcon;
+                if (themeToggleLanding) themeToggleLanding.innerHTML = `<i class="${iconClass}"></i>`;
+                if (themeToggleDashboard) themeToggleDashboard.innerHTML = `<i class="${iconClass}"></i>`;
+            }
+
+            function toggleTheme() {
+                htmlEl.classList.toggle('dark');
+                const isDarkMode = htmlEl.classList.contains('dark');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                updateIcons(isDarkMode);
+            }
+
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                htmlEl.classList.add('dark');
+                updateIcons(true);
+            } else {
+                htmlEl.classList.remove('dark');
+                updateIcons(false);
+            }
+
+            if (themeToggleLanding) themeToggleLanding.addEventListener('click', toggleTheme);
+            if (themeToggleDashboard) themeToggleDashboard.addEventListener('click', toggleTheme);
+        }
+
+        // --- AUTH & PAGE VISIBILITY ---
+        function showDashboard() {
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('app-dashboard').style.display = 'block';
+            if (!document.body.classList.contains('dashboard-listeners-set')) {
+                setupDashboardListeners();
+                document.body.classList.add('dashboard-listeners-set');
+            }
+            if (!window.location.hash || window.location.hash === "") {
+                window.location.hash = '#dashboard';
+            } else {
+                 handleHashChange(); // If hash already exists, trigger page load
+            }
+        }
+
+        function showLandingPage() {
+            document.getElementById('landing-page').style.display = 'block';
+            document.getElementById('app-dashboard').style.display = 'none';
+            document.getElementById('main-content-container').innerHTML = '';
+            const url = new URL(window.location);
+            url.hash = '';
+            history.pushState({}, '', url);
+            populateLandingPagePlans();
+            populatePartnersSection();
+        }
+
+        function handleLogout() {
+            signOut(auth).catch(error => {
+                console.error("Logout failed", error);
+                showAlert("Logout Error", "An error occurred during logout: " + error.message);
+            });
+        }
+
+        function populateLandingPagePlans() {
+            const plansContainer = document.getElementById('plans-preview-landing');
+            if (!plansContainer) return;
+            const plans = appSettings.previewPlans || {};
+            const planKeys = Object.keys(plans);
+
+            if (planKeys.length > 0) {
+                 plansContainer.innerHTML = planKeys.map(key => createPlanCardHTML({ id: key, ...plans[key] }, { isLanding: true, showBuyButton: false })).join('');
+            } else {
+                plansContainer.innerHTML = '<p class="text-center text-gray-500 dark:text-gray-400 col-span-full">No investment plans are available at the moment.</p>';
+            }
+        }
+        
+        function populatePartnersSection() {
+            const partnersContainer = document.getElementById('partners-container');
+            const partnersSection = document.getElementById('partners-section');
+            if (!partnersContainer || !partnersSection) return;
+            const partners = appSettings.partners || {};
+            
+            if (Object.keys(partners).length > 0) {
+                partnersSection.style.display = 'block';
+                const partnerLogos = Object.values(partners).map(partner => 
+                    `<div class="marquee-item"><img src="${partner.logoUrl}" alt="${partner.name}" class="h-12" title="${partner.name}" loading="lazy"></div>`
+                ).join('');
+                const marqueeContent = partnerLogos + partnerLogos;
+                partnersContainer.innerHTML = `<div class="marquee-container"><div class="marquee-content">${marqueeContent}</div></div>`;
+            } else {
+                partnersSection.style.display = 'none';
+            }
+        }
+
+        function handleHashChange() { 
+            const target = window.location.hash.substring(1) || 'dashboard'; 
+            loadPage(target); 
+            updateActiveLink(target); 
+        }
+
+        function loadPage(targetId) {
+            Object.values(activeTimers).forEach(clearInterval);
+            activeTimers = {};
+            
+            if (!currentUserData || !auth.currentUser) {
+                console.warn("loadPage called without user data. Redirecting to landing.");
+                showLandingPage();
+                return; 
+            }
+
+            const mainContentContainer = document.getElementById('main-content-container');
+            const pageTitle = document.getElementById('page-title');
+            const pageTitleMap = { 'dashboard': 'Home', 'plans': 'My Plans', 'wallet': 'Wallet', 'team': 'Team', 'profile': 'Profile', 'leaderboard': 'Leaderboard', 'account-statement': 'Account Statement', 'recharge-record': 'Recharge Record', 'withdraw-record': 'Withdraw Record', 'change-password': 'Change Password' };
+            pageTitle.textContent = pageTitleMap[targetId] || 'Home';
+            mainContentContainer.innerHTML = '';
+
+            const pageRenderers = {
+                'dashboard': renderDashboardPage, 'plans': renderPlansPage, 'wallet': setupWallet,
+                'team': renderTeamPage, 'profile': renderProfilePage, 'leaderboard': renderLeaderboardPage,
+                'account-statement': (userData) => renderHistoryPage(userData, 'account-statement'),
+                'recharge-record': (userData) => renderHistoryPage(userData, 'recharge-record'),
+                'withdraw-record': (userData) => renderHistoryPage(userData, 'withdraw-record'),
+                'change-password': renderChangePasswordPage
+            };
+            const renderFunction = pageRenderers[targetId];
+            if (renderFunction) {
+                renderFunction(currentUserData);
+            } else {
+                renderDashboardPage(currentUserData);
+            }
+        }
+        
+        // --- PAGE RENDERERS ---
+        function renderDashboardPage(userData) {
+            const mainContentContainer = document.getElementById('main-content-container');
+            const plans = appSettings.plans || {};
+            const activePlans = userData.activePlans || {};
+            const activePlanIds = Object.values(activePlans).map(p => p.id);
+            const planKeys = Object.keys(plans);
+            
+            const sliderData = appSettings.sliderImages || {};
+            const sliderImages = Array.isArray(sliderData) ? sliderData : Object.values(sliderData);
+
+            const sliderHTML = sliderImages.length > 0 ?
+                `<div id="image-slider-container" class="relative w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 mb-6 cursor-grab active:cursor-grabbing"><div id="slider-inner" class="flex transition-transform duration-700 ease-in-out"></div><div id="slider-dots" class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2"></div></div>`
+                : createNoDataPlaceholder("No Promotions Available", "Check back later for new promotions.");
+            
+            const plansHTML = planKeys.length > 0
+                ? planKeys.map(key => {
+                    const isPurchased = activePlanIds.includes(key);
+                    return createPlanCardHTML({ id: key, ...plans[key] }, { showBuyButton: true, isPurchased: isPurchased });
+                }).join('')
+                : createNoDataPlaceholder("No Plans Available", "New investment opportunities will be shown here.");
+
+            const content = `${sliderHTML}
+                <div class="grid grid-cols-5 gap-4 text-center my-8 max-w-lg mx-auto">
+                    <a href="#wallet" data-target="wallet" class="action-icon nav-link"><div class="bg-white dark:bg-gray-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-md"><i class="ri-wallet-3-line text-2xl"></i></div><span class="text-sm mt-2 block">Deposit</span></a>
+                    <a href="#wallet" data-target="wallet" class="action-icon nav-link"><div class="bg-white dark:bg-gray-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-md"><i class="ri-hand-coin-line text-2xl"></i></div><span class="text-sm mt-2 block">Withdraw</span></a>
+                    <a href="#team" data-target="team" class="action-icon nav-link"><div class="bg-white dark:bg-gray-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-md"><i class="ri-user-add-line text-2xl"></i></div><span class="text-sm mt-2 block">Invite</span></a>
+                    <a href="#leaderboard" data-target="leaderboard" class="action-icon nav-link"><div class="bg-white dark:bg-gray-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-md"><i class="ri-trophy-line text-2xl"></i></div><span class="text-sm mt-2 block">Leaderboard</span></a>
+                    <a href="#" id="install-app-btn-dashboard" class="action-icon" style="display: none;"><div class="bg-white dark:bg-gray-800 w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-md"><i class="ri-download-cloud-2-line text-2xl"></i></div><span class="text-sm mt-2 block">Install App</span></a>
+                </div>
+                <h2 class="text-2xl font-bold mb-6 text-center">Investment Plans</h2>
+                <div class="space-y-6 max-w-2xl mx-auto">${plansHTML}</div>`;
+            mainContentContainer.innerHTML = content;
+
+            if (deferredInstallPrompt) {
+                const installBtn = document.getElementById('install-app-btn-dashboard');
+                if (installBtn) installBtn.style.display = 'block';
+            }
+
+            if (sliderImages.length > 0) {
+                 setupSlider();
+            }
+        }
+
+        function renderPlansPage(userData) {
+            const mainContentContainer = document.getElementById('main-content-container');
+            const activePlans = userData.activePlans || {};
+            const transactions = userData.transactions || {};
+            const hasActivePlan = Object.keys(activePlans).length > 0;
+            const activePlansHTML = hasActivePlan 
+                ? Object.keys(activePlans).map(planKey => createPlanCardHTML({ ...activePlans[planKey], planKey: planKey }, { isActive: true, showBuyButton: false })).join('')
+                : createNoDataPlaceholder('No Active Plans', 'You have not purchased any plans yet.');
+            
+            const totalEarnings = Object.values(transactions.earnings || {}).reduce((sum, earn) => sum + earn.amount, 0);
+            
+            mainContentContainer.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-lg mb-8">
+                    <h2 class="text-xl font-bold">Earnings Overview</h2>
+                    <div><p class="text-gray-600 dark:text-gray-400 text-sm">Total Lifetime Earnings</p><p class="text-3xl font-bold text-gray-900 dark:text-white">$${totalEarnings.toFixed(2)}</p></div>
+                    <div class="h-48 mt-4"><canvas id="earningsChart"></canvas></div>
+                </div>
+                <h2 class="text-xl font-bold my-6">Your Active Plans</h2>
+                <div class="space-y-6 max-w-2xl mx-auto">${activePlansHTML}</div>`;
+            setupEarningsChart(transactions.earnings || {});
+            
+            if(hasActivePlan) {
+                startClaimTimers();
+            }
+        }
+
+        async function renderTeamPage(userData) {
+            const mainContentContainer = document.getElementById('main-content-container');
+            const profile = userData.profile || {};
+            const transactions = userData.transactions || {};
+            const team = userData.team || {};
+            
+            const referralCode = profile.referralCode || 'N/A';
+            const referralLink = `${window.location.origin}${window.location.pathname}?ref=${referralCode}`;
+            
+            const totalDeposit = Object.values(transactions.deposits || {}).filter(d => d.status === 'approved').reduce((sum, d) => sum + d.amount, 0);
+            const unlockThreshold = appSettings.referral?.unlockThreshold || 500;
+            const isL2L3Locked = totalDeposit < unlockThreshold;
+
+            const level1Commission = team.level1?.commission || 0;
+            const level2Commission = team.level2?.commission || 0;
+            const level3Commission = team.level3?.commission || 0;
+
+            const commissionRates = appSettings.referralCommission || { level1: 0, level2: 0, level3: 0 };
+
+            const lockedCardHTML = (level) => `
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 text-center border border-dashed border-gray-600">
+                    <i class="ri-lock-line text-4xl text-gray-500 mb-3"></i>
+                    <h4 class="text-xl font-bold">Level ${level} Locked</h4>
+                    <p class="text-gray-400 mt-1">Deposit $${unlockThreshold} to unlock this level.</p>
+                </div>`;
+
+            mainContentContainer.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6 text-center">Team & Commission</h2>
+                
+                <div class="grid grid-cols-1 gap-4 mb-8">
+                    <!-- Level 1 Card -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xl font-bold">Level 1</h4>
+                            <span class="bg-teal-500/20 text-teal-400 text-xs font-bold px-3 py-1 rounded-full">Up to ${commissionRates.level1}%</span>
+                        </div>
+                        <div class="flex justify-around text-center mt-4">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Members</p>
+                                <p id="l1-members-count" class="text-2xl font-bold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Commission</p>
+                                <p class="text-2xl font-bold text-teal-400">$${level1Commission.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Level 2 Card -->
+                    ${isL2L3Locked ? lockedCardHTML(2) : `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xl font-bold">Level 2</h4>
+                            <span class="bg-teal-500/20 text-teal-400 text-xs font-bold px-3 py-1 rounded-full">Up to ${commissionRates.level2}%</span>
+                        </div>
+                        <div class="flex justify-around text-center mt-4">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Members</p>
+                                <p id="l2-members-count" class="text-2xl font-bold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Commission</p>
+                                <p class="text-2xl font-bold text-teal-400">$${level2Commission.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    </div>`}
+
+                    <!-- Level 3 Card -->
+                    ${isL2L3Locked ? lockedCardHTML(3) : `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xl font-bold">Level 3</h4>
+                            <span class="bg-teal-500/20 text-teal-400 text-xs font-bold px-3 py-1 rounded-full">Up to ${commissionRates.level3}%</span>
+                        </div>
+                        <div class="flex justify-around text-center mt-4">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Members</p>
+                                <p id="l3-members-count" class="text-2xl font-bold">0</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Commission</p>
+                                <p class="text-2xl font-bold text-teal-400">$${level3Commission.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    </div>`}
+                </div>
+
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 space-y-4">
+                    <div><p class="text-sm text-gray-700 dark:text-gray-300 mb-2">Your Referral Link</p><div class="flex items-center bg-gray-100 dark:bg-gray-700 p-2 rounded-md"><input id="ref-link-input" type="text" value="${referralLink}" class="bg-transparent w-full" readonly><button onclick="navigator.clipboard.writeText('${referralLink}'); this.textContent='Copied!'" class="ml-3 bg-teal-500 px-4 py-2 rounded-md text-sm font-bold text-white">Copy Link</button></div></div>
+                    <div><p class="text-sm text-gray-700 dark:text-gray-300 mb-2">Your Referral Code</p><div class="flex items-center bg-gray-100 dark:bg-gray-700 p-2 rounded-md"><input id="ref-code-input" type="text" value="${referralCode}" class="bg-transparent w-full font-mono" readonly><button onclick="navigator.clipboard.writeText('${referralCode}'); this.textContent='Copied!'" class="ml-3 bg-blue-600 px-4 py-2 rounded-md text-sm font-bold text-white">Copy Code</button></div></div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold mb-4">Level 1 Members</h3>
+                    <div id="team-list-container" class="bg-white dark:bg-gray-800 rounded-lg p-4">${createNoDataPlaceholder('Loading Team...', 'Please wait while we fetch your referral data.')}</div>
+                </div>`;
+            
+            async function fetchAndDisplayTeamCounts(uid) {
+                const l1CountEl = document.getElementById('l1-members-count');
+                const l2CountEl = document.getElementById('l2-members-count');
+                const l3CountEl = document.getElementById('l3-members-count');
+
+                try {
+                    const l1Query = query(ref(database, 'users'), orderByChild('profile/referredBy'), equalTo(uid));
+                    const l1Snapshot = await get(l1Query);
+                    let l1Members = [];
+                    let l2Count = 0;
+                    let l3Count = 0;
+
+                    if (l1Snapshot.exists()) {
+                        l1Members = Object.keys(l1Snapshot.val());
+                        if(l1CountEl) l1CountEl.textContent = l1Members.length;
+
+                        const l2Promises = l1Members.map(l1Uid => 
+                            get(query(ref(database, 'users'), orderByChild('profile/referredBy'), equalTo(l1Uid)))
+                        );
+                        const l2Snapshots = await Promise.all(l2Promises);
+                        let l2Members = [];
+                        l2Snapshots.forEach(snap => {
+                            if(snap.exists()){
+                                l2Count += snap.size;
+                                l2Members.push(...Object.keys(snap.val()));
+                            }
+                        });
+                        if(l2CountEl) l2CountEl.textContent = l2Count;
+
+                        const l3Promises = l2Members.map(l2Uid => 
+                            get(query(ref(database, 'users'), orderByChild('profile/referredBy'), equalTo(l2Uid)))
+                        );
+                        const l3Snapshots = await Promise.all(l3Promises);
+                        l3Snapshots.forEach(snap => {
+                             if(snap.exists()) l3Count += snap.size;
+                        });
+                        if(l3CountEl) l3CountEl.textContent = l3Count;
+                        
+                        const teamListContainer = document.getElementById('team-list-container');
+                        const referrals = l1Snapshot.val();
+                        const referralValues = Object.values(referrals);
+                        const membersListHTML = `<ul class="space-y-2">${referralValues.map(member => {
+                            const memberProfile = member.profile || {};
+                            const status = memberProfile.status || 'inactive';
+                            const memberTransactions = member.transactions || {};
+                            const totalDeposit = Object.values(memberTransactions.deposits || {}).filter(d => d.status === 'approved').reduce((sum, d) => sum + d.amount, 0);
+                            return `<li class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                                        <div>
+                                            <span class="font-bold">${memberProfile.name || 'N/A'}</span>
+                                            <span class="block text-xs text-gray-500">${memberProfile.email}</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-sm font-bold">$${totalDeposit.toFixed(2)}</span>
+                                            <span class="text-xs capitalize block px-2 py-0.5 rounded-full ${status === 'active' ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300'}">
+                                                ${status}
+                                            </span>
+                                        </div>
+                                    </li>`;
+                        }).join('')}</ul>`;
+                        teamListContainer.innerHTML = membersListHTML;
+
+                    } else {
+                        if (l1CountEl) l1CountEl.textContent = 0;
+                        if (l2CountEl) l2CountEl.textContent = 0;
+                        if (l3CountEl) l3CountEl.textContent = 0;
+                        document.getElementById('team-list-container').innerHTML = createNoDataPlaceholder('No Members', 'No one has joined using your referral code yet.');
+                    }
+                } catch (error) {
+                    console.error("Error fetching team counts:", error);
+                     document.getElementById('team-list-container').innerHTML = createNoDataPlaceholder('Error', 'Could not load your team data.');
+                }
+            }
+
+            fetchAndDisplayTeamCounts(auth.currentUser.uid);
+        }
+
+        async function renderProfilePage(userData) {
+            const mainContentContainer = document.getElementById('main-content-container');
+            const profile = userData.profile || {};
+            const transactions = userData.transactions || {};
+            
+            const totalDeposit = Object.values(transactions.deposits||{}).filter(d=>d.status==='approved').reduce((s,d)=>s+d.amount,0);
+            const totalWithdrawal = Object.values(transactions.withdrawals||{}).filter(w=>w.status==='approved').reduce((s,w)=>s+w.amount,0);
+            const lifetimeEarnings = Object.values(transactions.earnings||{}).reduce((s,e)=>s+e.amount,0);
+            
+            const team = userData.team || {};
+            const totalCommission = (team.level1?.commission || 0) + (team.level2?.commission || 0) + (team.level3?.commission || 0);
+
+            const statCard = (icon, label, value, color) => `<div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow"><i class="ri-${icon}-line text-3xl text-${color}-500 dark:text-${color}-400 mb-2"></i><p class="text-sm text-gray-600 dark:text-gray-400">${label}</p><p class="text-lg font-bold">$${value.toFixed(2)}</p></div>`;
+            const profileLinks = appSettings.profileLinks || {};
+            const menuItems = [
+                { name: 'Leaderboard', icon: 'trophy', target: '#leaderboard' },
+                { name: 'Customer Service', icon: 'customer-service-2', target: profileLinks.support || '#' },
+                { name: 'Help Center', icon: 'question', target: profileLinks.help || '' },
+                { name: 'Privacy Policy', icon: 'shield-check', target: profileLinks.privacy || '' },
+                { name: 'Terms & Conditions', icon: 'file-list-3', target: profileLinks.terms || '' }
+            ];
+            const menuItemsHTML = menuItems.map(item => createProfileLinkHTML(item)).join('');
+
+            mainContentContainer.innerHTML = `<h2 class="text-2xl font-bold mb-6">Profile</h2><div class="bg-white dark:bg-gray-800 rounded-lg p-6 mb-6 shadow"><div class="flex items-center space-x-4"><img id="profile-pic" src="${profile.avatar}" alt="Avatar" class="w-24 h-24 rounded-full object-cover" loading="lazy"><div class="flex-1"><h3>${profile.name || 'User'}</h3><p class="text-gray-600 dark:text-gray-400 text-sm">${profile.email || ''}</p><button id="edit-profile-btn" class="mt-2 bg-gray-200 dark:bg-gray-700 text-sm py-2 px-4 rounded-lg">Edit Profile</button></div></div><div id="referrer-info" class="mt-4"></div></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">${statCard('wallet-3','Deposit',totalDeposit,'blue')}${statCard('hand-coin','Withdrawal',totalWithdrawal,'red')}${statCard('line-chart','Earnings',lifetimeEarnings,'green')}${statCard('gift-2','Commission',totalCommission,'yellow')}</div><div class="space-y-3">${menuItemsHTML}</div><button id="logout-btn-profile" class="w-full mt-6 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 flex items-center justify-center"><i class="ri-logout-box-r-line mr-2"></i>Logout</button>`;
+            
+            document.getElementById('edit-profile-btn').addEventListener('click', () => { 
+                document.getElementById('profile-name').value = profile.name || '';
+                document.getElementById('profile-address').value = profile.address || '';
+                document.getElementById('profile-age').value = profile.age || '';
+                document.getElementById('profile-dob').value = profile.dob || '';
+                document.getElementById('profile-edit-modal').style.display = 'flex'; 
+            });
+
+            if (profile.referredBy) {
+                const referrerInfoEl = document.getElementById('referrer-info');
+                try {
+                    const snapshot = await get(ref(database, `users/${profile.referredBy}/profile/name`));
+                    if (snapshot.exists()) {
+                        referrerInfoEl.innerHTML = `<div class="text-sm text-center bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">Referred By: <span class="font-bold text-teal-500 dark:text-teal-400">${snapshot.val()}</span></div>`;
+                    }
+                } catch(e) { console.error("Could not fetch referrer name", e); }
+            }
+        }
+        
+        async function renderLeaderboardPage() {
+            const mainContentContainer = document.getElementById('main-content-container');
+            mainContentContainer.innerHTML = `
+                <h2 class="text-2xl font-bold mb-6">Leaderboard</h2>
+                <div class="flex items-center justify-center gap-2 mb-6" id="leaderboard-filters">
+                    <button class="filter-btn active" data-tab="earners">Top Earners</button>
+                    <button class="filter-btn" data-tab="recruiters">Top Recruiters</button>
+                </div>
+                <div id="leaderboard-content-area">
+                    <div style="display: flex; justify-content: center; padding: 2rem;">
+                         <div style="border: 4px solid #f3f3f3; border-top: 4px solid #14b8a6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+                    </div>
+                </div>`;
+
+            const contentArea = document.getElementById('leaderboard-content-area');
+            try {
+                const snapshot = await get(ref(database, 'leaderboard'));
+                if (!snapshot.exists()) {
+                    contentArea.innerHTML = createNoDataPlaceholder("Leaderboard is Empty", "Top performers will be displayed here once available.");
+                    return;
+                }
+                const leaderboardData = snapshot.val();
+                const earners = Object.values(leaderboardData.earners || {}).sort((a,b) => b.amount - a.amount);
+                const recruiters = Object.values(leaderboardData.recruiters || {}).sort((a,b) => b.count - a.count);
+                
+                const rankColors = ['text-yellow-400', 'text-gray-400', 'text-yellow-600'];
+                const rankIcons = ['ri-trophy-fill', 'ri-medal-fill', 'ri-medal-fill'];
+
+                const createList = (data, type) => {
+                    if (!data || data.length === 0) return createNoDataPlaceholder(`No Top ${type}`, `Data will be displayed here.`);
+                    return `<ul class="space-y-3">${data.map((user, index) => {
+                       const value = type === 'Earners' ? `$${(user.amount || 0).toFixed(2)}` : `${user.count || 0} members`;
+                       const label = type === 'Earners' ? 'Total Earnings' : 'Team Size';
+                       return `<li class="flex items-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                                  <span class="text-xl font-bold w-10 text-center ${index < 3 ? rankColors[index] : 'text-gray-500'}">
+                                      ${index < 3 ? `<i class="${rankIcons[index]}"></i>` : `#${index + 1}`}
+                                  </span>
+                                  <img src="${user.avatar}" class="w-12 h-12 rounded-full mx-4 object-cover" loading="lazy">
+                                  <div class="flex-1">
+                                      <p class="font-bold text-gray-900 dark:text-white">${user.name}</p>
+                                  </div>
+                                  <div class="text-right">
+                                      <p class="font-bold text-lg text-teal-500 dark:text-teal-400">${value}</p>
+                                      <p class="text-xs text-gray-500 dark:text-gray-400">${label}</p>
+                                  </div>
+                               </li>`;
+                    }).join('')}</ul>`;
+                };
+
+                const earnersHTML = createList(earners, 'Earners');
+                const recruitersHTML = createList(recruiters, 'Recruiters');
+
+                contentArea.innerHTML = `
+                    <div id="earners-list">${earnersHTML}</div>
+                    <div id="recruiters-list" class="hidden">${recruitersHTML}</div>
+                `;
+
+            } catch(error) {
+                console.error("Error fetching leaderboard:", error);
+                contentArea.innerHTML = createNoDataPlaceholder("Error", "Could not load the leaderboard data.");
+            }
+        }
+
+        function renderChangePasswordPage() {
+            const mainContentContainer = document.getElementById('main-content-container');
+             mainContentContainer.innerHTML = `<div class="max-w-md mx-auto"><h2 class="text-2xl font-bold mb-6">Change Password</h2><div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow"><form id="change-pass-form" class="space-y-4"><div><label class="block text-sm">Current Password</label><input type="password" id="current-pass" class="form-input" required></div><div><label class="block text-sm">New Password</label><input type="password" id="new-pass" class="form-input" required></div><div><label class="block text-sm">Confirm New Password</label><input type="password" id="confirm-new-pass" class="form-input" required></div><button type="submit" class="w-full bg-blue-600 font-bold py-3 rounded-lg text-white">Update Password</button></form><p id="change-pass-status" class="text-sm mt-4 text-center"></p></div></div>`;
+        }
+        
+        function setupWallet(userData) {
+            const mainContentContainer = document.getElementById('main-content-container');
+            const wallet = userData.wallet || {};
+            const transactions = userData.transactions || {};
+            
+            const total = (wallet.deposited || 0) + (wallet.withdrawable || 0) + (wallet.commission || 0);
+            
+            const allRecords = [
+                ...Object.values(transactions.deposits || {}).map(o => ({...o, type: 'Deposit'})), 
+                ...Object.values(transactions.withdrawals || {}).map(o => ({...o, type: 'Withdrawal'})),
+                ...Object.values(transactions.earnings || {}).map(o => ({...o, type: 'Earning'})),
+                ...Object.values(transactions.commission || {}).map(o => ({...o, type: 'Commission'})), 
+                ...Object.values(transactions.other || {}).map(o => ({...o, type: o.type || 'Other'}))
+            ];
+
+            const historyHTML = (() => {
+                if (allRecords.length === 0) return createNoDataPlaceholder('No Recent Transactions', 'Your recent transaction history will appear here.');
+                allRecords.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                return `<div class="mt-8"><h3 class="text-xl font-bold mb-4">Recent Transactions</h3><div style="max-height: 40vh; overflow-y: auto;"><ul class="space-y-2 pr-2">${allRecords.slice(0, 15).map(rec => {
+                    const amount = rec.amount || 0;
+                    const isNegative = rec.type === 'Withdrawal' || rec.type === 'Plan Purchase';
+                    const sign = isNegative ? '-' : '+';
+                    const iconMap = { 'Withdrawal': 'ri-arrow-up-circle-line', 'Earning': 'ri-star-fill', 'Commission': 'ri-gift-2-line', 'Deposit': 'ri-arrow-down-circle-line', 'Plan Purchase': 'ri-shopping-bag-3-line' };
+                    const colorMap = { 'Withdrawal': 'text-red-500 dark:text-red-400', 'Earning': 'text-yellow-500 dark:text-yellow-400', 'Commission': 'text-blue-500 dark:text-blue-400', 'Deposit': 'text-green-500 dark:text-green-400', 'Plan Purchase': 'text-red-500 dark:text-red-400' };
+                    const icon = iconMap[rec.type] || 'ri-arrow-down-circle-line';
+                    const iconColor = colorMap[rec.type] || 'text-green-500 dark:text-green-400';
+                    return `<li class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg"><div class="flex items-center"><i class="${icon} text-2xl ${iconColor} mr-3"></i><div><p class="font-semibold text-gray-900 dark:text-white">${rec.type}</p><p class="text-xs text-gray-500 dark:text-gray-400">${new Date(rec.timestamp).toLocaleDateString()}</p></div></div><span class="font-bold ${iconColor}">${sign}$${amount.toFixed(2)}</span></li>`;
+                }).join('')}</ul></div></div>`;
+            })();
+            
+            const depositWallets = Array.isArray(appSettings.depositWallets) 
+                ? appSettings.depositWallets 
+                : Object.values(appSettings.depositWallets || {});
+
+            const withdrawalSettings = appSettings.withdrawal || { minimumAmount: 10, methods: [] };
+
+            const withdrawalMethods = Array.isArray(withdrawalSettings.methods)
+                ? withdrawalSettings.methods
+                : Object.values(withdrawalSettings.methods || {});
+
+            const depositOptions = depositWallets.length > 0
+                ? depositWallets.map(w => `<option value="${w.address}">${w.network}</option>`).join('')
+                : '<option disabled>No deposit methods available</option>';
+
+            const withdrawalOptions = withdrawalMethods.length > 0
+                ? withdrawalMethods.map(m => `<option value="${m.network}" data-fee-percent="${m.fee || 0}">${m.network}</option>`).join('')
+                : '<option disabled>No withdrawal methods available</option>';
+
+            const templates = {
+                main: `<div>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 mb-6 text-center shadow">
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Total Balance</p>
+                            <p class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 mt-1">$${total.toFixed(2)}</p>
+                        </div>
+                        <div class="grid gap-4 grid-cols-2 md:grid-cols-3">
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg text-center shadow"><p>Deposited</p><p class="text-2xl font-bold">$${(wallet.deposited || 0).toFixed(2)}</p></div>
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg text-center shadow"><p>Withdrawable</p><p class="text-2xl font-bold text-teal-500 dark:text-teal-400">$${(wallet.withdrawable || 0).toFixed(2)}</p></div>
+                            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg text-center shadow col-span-2 md:col-span-1"><p>Commission</p><p class="text-2xl font-bold text-blue-500 dark:text-blue-400">$${(wallet.commission || 0).toFixed(2)}</p></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mt-6">
+                            <button id="show-deposit" class="w-full bg-green-500 hover:bg-green-600 font-bold py-3 rounded-lg text-white flex items-center justify-center"><i class="ri-add-circle-line mr-2"></i>Deposit</button>
+                            <button id="show-withdraw" class="w-full bg-red-500 hover:bg-red-600 font-bold py-3 rounded-lg text-white flex items-center justify-center"><i class="ri-indeterminate-circle-line mr-2"></i>Withdraw</button>
+                        </div>
+                        ${historyHTML}
+                       </div>`,
+                deposit: `<div><button class="back-to-wallet text-teal-500 dark:text-teal-400 mb-4 flex items-center hover:underline"><i class="ri-arrow-left-s-line mr-1"></i>Back to Wallet</button><div class="max-w-md mx-auto"><h2 class="text-2xl font-bold mb-4 text-center">Deposit USDT</h2><div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow"><form id="deposit-form" class="space-y-4"><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Select Network</label><select id="deposit-network" class="form-select">${depositOptions}</select></div><p class="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">Send funds to the following address:</p><div class="flex items-center bg-gray-100 dark:bg-gray-700 p-2 rounded-md mb-6"><input id="deposit-address-display" type="text" value="" class="bg-transparent w-full text-teal-500 dark:text-teal-400 font-mono" readonly><button type="button" id="copy-address-btn" class="ml-3 bg-teal-500 px-4 py-2 rounded-md text-sm font-bold text-white flex-shrink-0">Copy</button></div><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Amount Sent (USDT)</label><input type="number" id="deposit-amount" step="0.01" class="form-input" required></div><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Transaction ID (TxID)</label><input type="text" id="deposit-txid" class="form-input" required></div><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Transaction Screenshot</label><input type="file" id="deposit-screenshot" class="form-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 dark:file:bg-teal-500/10 file:text-teal-700 dark:file:text-teal-300 hover:file:bg-teal-100 dark:hover:file:bg-teal-500/20" accept="image/*"></div><button type="submit" class="w-full bg-blue-600 font-bold py-3 rounded-lg hover:bg-blue-700 text-white mt-2">Submit Deposit</button></form><p id="deposit-status" class="text-sm mt-4 text-center"></p></div></div></div>`,
+                withdraw: `<div><button class="back-to-wallet text-teal-500 dark:text-teal-400 mb-4 flex items-center hover:underline"><i class="ri-arrow-left-s-line mr-1"></i>Back to Wallet</button><div class="max-w-md mx-auto"><h2 class="text-2xl font-bold mb-4 text-center">Withdraw USDT</h2><div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow"><form id="withdraw-form" class="space-y-4"><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Amount to Withdraw</label><input type="number" id="withdraw-amount" step="0.01" placeholder="Min $${(withdrawalSettings.minimumAmount || 10).toFixed(2)}" class="form-input" required></div><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Select Network</label><select id="withdraw-network" class="form-select">${withdrawalOptions}</select></div><div class="text-sm text-gray-600 dark:text-gray-400 mt-2"><p>Fee: <span id="withdraw-fee" class="font-bold">$0.00</span></p><p>You will receive: <span id="withdraw-receive" class="font-bold text-teal-500 dark:text-teal-400">$0.00</span></p></div><div><label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Your Wallet Address</label><input type="text" id="withdraw-address" placeholder="Enter your wallet address" class="form-input" required></div><button type="submit" class="w-full bg-blue-600 font-bold py-3 rounded-lg hover:bg-blue-700 text-white mt-2">Submit Withdrawal</button></form><p id="withdraw-status" class="text-sm mt-4 text-center"></p></div></div></div>`
+            };
+            
+            const showView = v => {
+                mainContentContainer.innerHTML = templates[v];
+                if (v !== 'main') {
+                    mainContentContainer.querySelector('.back-to-wallet').addEventListener('click', () => showView('main'));
+                } else {
+                    document.getElementById('show-deposit').addEventListener('click', () => showView('deposit'));
+                    document.getElementById('show-withdraw').addEventListener('click', () => showView('withdraw'));
+                }
+
+                if (v === 'deposit') {
+                    const networkSelect = document.getElementById('deposit-network');
+                    const addressDisplayInput = document.getElementById('deposit-address-display');
+                    const copyBtn = document.getElementById('copy-address-btn');
+
+                    function updateDepositInfo() {
+                        const selectedAddress = networkSelect.value;
+                        addressDisplayInput.value = selectedAddress;
+                    }
+                    
+                    if (copyBtn) {
+                        copyBtn.addEventListener('click', () => {
+                            addressDisplayInput.select();
+                            navigator.clipboard.writeText(addressDisplayInput.value);
+                            copyBtn.textContent = 'Copied!';
+                            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                        });
+                    }
+
+                    if (networkSelect) {
+                        networkSelect.addEventListener('change', updateDepositInfo);
+                        updateDepositInfo(); 
+                    }
+                    
+                    document.getElementById('deposit-form').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const statusEl = document.getElementById('deposit-status');
+                        const submitBtn = e.target.querySelector('button[type="submit"]');
+                        const imageFile = document.getElementById('deposit-screenshot').files[0];
+                        const amount = parseFloat(document.getElementById('deposit-amount').value);
+                        const minDeposit = appSettings.deposit?.minimumAmount || 30;
+
+                        if (amount < minDeposit) {
+                            statusEl.textContent = `Minimum deposit amount is $${minDeposit}.`;
+                            statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+                            return;
+                        }
+
+                        submitBtn.disabled = true;
+                        let screenshotUrlValue = null;
+
+                        try {
+                            if (imageFile) {
+                                statusEl.textContent = 'Uploading screenshot...';
+                                statusEl.className = 'text-yellow-400 text-sm mt-4 text-center';
+
+                                const apiKey = '1b4c33d73040d3333641c039b20b10e5';
+                                const formData = new FormData();
+                                formData.append('image', imageFile);
+
+                                const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, { method: 'POST', body: formData });
+                                const result = await response.json();
+                                if (!result.success) throw new Error(result.error.message || 'Image upload failed.');
+                                screenshotUrlValue = result.data.url;
+                            }
+                            
+                            statusEl.textContent = 'Submitting request...';
+                            const currentUser = auth.currentUser;
+                            const selectedNetwork = networkSelect.options[networkSelect.selectedIndex].text;
+                            
+                            const upline = await getUpline(currentUser.uid);
+                            
+                            const depositData = {
+                                userId: currentUser.uid, userEmail: currentUser.email,
+                                amount: amount,
+                                txId: document.getElementById('deposit-txid').value,
+                                network: selectedNetwork,
+                                screenshotUrl: screenshotUrlValue,
+                                status: 'pending', timestamp: new Date().toISOString(),
+                                upline: upline 
+                            };
+                            
+                            const requestRef = push(ref(database, 'requests/deposits'));
+                            const updates = {};
+                            updates[`/requests/deposits/${requestRef.key}`] = depositData;
+                            updates[`/users/${currentUser.uid}/transactions/deposits/${requestRef.key}`] = depositData;
+                            
+                            await update(ref(database), updates);
+                            statusEl.textContent = 'Deposit request submitted for approval.';
+                            statusEl.className = 'text-green-500 text-sm mt-4 text-center';
+                            e.target.reset();
+
+                        } catch (error) {
+                            statusEl.textContent = 'Submission failed: ' + error.message;
+                            statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+                        } finally {
+                            submitBtn.disabled = false;
+                        }
+                    });
+                }
+                if (v === 'withdraw') {
+                    const amountInput = document.getElementById('withdraw-amount');
+                    const networkSelect = document.getElementById('withdraw-network');
+                    
+                    function updateWithdrawalDetails() {
+                        const amount = parseFloat(amountInput.value) || 0;
+                        const selectedOption = networkSelect.options[networkSelect.selectedIndex];
+                        const feePercent = selectedOption ? parseFloat(selectedOption.dataset.feePercent) || 0 : 0;
+                        const fee = (amount * feePercent) / 100;
+                        const receiveAmount = amount > fee ? amount - fee : 0;
+                        
+                        document.getElementById('withdraw-fee').textContent = `$${fee.toFixed(2)} (${feePercent}%)`;
+                        document.getElementById('withdraw-receive').textContent = `$${receiveAmount.toFixed(2)}`;
+                    }
+
+                    if (amountInput) amountInput.addEventListener('input', updateWithdrawalDetails);
+                    if (networkSelect) networkSelect.addEventListener('change', updateWithdrawalDetails);
+                    updateWithdrawalDetails(); 
+                    
+                    document.getElementById('withdraw-form').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const statusEl = document.getElementById('withdraw-status');
+                        const amount = parseFloat(document.getElementById('withdraw-amount').value);
+                        
+                        if (amount < (withdrawalSettings.minimumAmount || 10)) {
+                            statusEl.textContent = `Minimum withdrawal is $${(withdrawalSettings.minimumAmount || 10).toFixed(2)}.`;
+                            statusEl.className = 'text-red-500 text-sm mt-4 text-center'; return;
+                        }
+                        if ((currentUserData.wallet.withdrawable || 0) < amount) {
+                            statusEl.textContent = 'Insufficient withdrawable balance.';
+                            statusEl.className = 'text-red-500 text-sm mt-4 text-center'; return;
+                        }
+                        
+                        statusEl.textContent = 'Processing...'; statusEl.className = 'text-yellow-400 text-sm mt-4 text-center';
+                        
+                        const selectedOption = networkSelect.options[networkSelect.selectedIndex];
+                        const feePercent = selectedOption ? parseFloat(selectedOption.dataset.feePercent) : 0;
+                        const fee = (amount * feePercent) / 100;
+
+                        const withdrawData = {
+                            userId: auth.currentUser.uid, userEmail: auth.currentUser.email,
+                            amount: amount, fee: fee, finalAmount: amount - fee,
+                            network: selectedOption.value,
+                            walletAddress: document.getElementById('withdraw-address').value,
+                            status: 'pending', timestamp: new Date().toISOString()
+                        };
+
+                        try {
+                            const requestRef = push(ref(database, 'requests/withdrawals'));
+                            const updates = {};
+                            updates[`/requests/withdrawals/${requestRef.key}`] = withdrawData;
+                            updates[`/users/${auth.currentUser.uid}/transactions/withdrawals/${requestRef.key}`] = withdrawData;
+                            
+                            await update(ref(database), updates);
+                            statusEl.textContent = 'Your withdrawal request is pending.';
+                            statusEl.className = 'text-green-500 text-sm mt-4 text-center';
+                            e.target.reset();
+                        } catch (error) {
+                             statusEl.textContent = 'Submission failed: ' + error.message;
+                             statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+                        }
+                    });
+                }
+            };
+            showView('main');
+        }
+
+        function renderHistoryPage(userData, targetId) {
+            const mainContentContainer = document.getElementById('main-content-container');
+            const transactions = userData.transactions || {};
+            
+            const allRecords = [ 
+                ...Object.values(transactions.deposits || {}).map(o => ({...o, type: 'Deposit'})), 
+                ...Object.values(transactions.withdrawals || {}).map(o => ({...o, type: 'Withdrawal'})), 
+                ...Object.values(transactions.earnings || {}).map(o => ({...o, type: 'Earning'})), 
+                ...Object.values(transactions.commission || {}).map(o => ({...o, type: 'Commission'})), 
+                ...Object.values(transactions.other || {}).map(o => ({...o, type: o.type || 'Other'})) 
+            ];
+            
+            const config = { 
+                'account-statement': { title: 'Account Statement', records: allRecords }, 
+                'recharge-record': { title: 'Recharge Record', records: Object.values(transactions.deposits || {}).map(o => ({...o, type: 'Deposit'})) }, 
+                'withdraw-record': { title: 'Withdrawal Record', records: Object.values(transactions.withdrawals || {}).map(o => ({...o, type: 'Withdrawal'})) } 
+            };
+
+            const pageConfig = config[targetId];
+            if (!pageConfig) { mainContentContainer.innerHTML = createNoDataPlaceholder('Error', 'Page configuration not found.'); return; }
+
+            const { title, records } = pageConfig;
+            if (records && records.length > 0) {
+                records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                mainContentContainer.innerHTML = `<h2 class="text-2xl font-bold mb-6">${title}</h2><div class="bg-white dark:bg-gray-800 rounded-lg overflow-x-auto shadow"><table class="w-full text-left text-sm">
+                    <thead class="bg-gray-100 dark:bg-gray-700 uppercase"><tr><th class="p-3">Date</th><th class="p-3">Amount</th><th class="p-3">Type</th><th class="p-3">Details</th><th class="p-3">Status</th></tr></thead>
+                    <tbody>${records.map(rec => {
+                        const amount = rec.amount || 0;
+                        const isNegative = rec.type === 'Withdrawal' || rec.type === 'Plan Purchase';
+                        const amountColor = isNegative ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400';
+                        const sign = isNegative ? '-' : '+';
+                        const statusClass = rec.status === 'approved' || rec.status === 'completed' ? 'bg-green-500/20 text-green-700 dark:text-green-300' : (rec.status === 'pending' ? 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-300' : 'bg-red-500/20 text-red-700 dark:text-red-300');
+                        const details = rec.details || rec.txId || rec.planName || rec.network || 'N/A';
+                        return `<tr class="border-b border-gray-200 dark:border-gray-700"><td class="p-3">${new Date(rec.timestamp).toLocaleString()}</td><td class="p-3 font-mono ${amountColor}">${sign} $${amount.toFixed(2)}</td><td class="p-3">${rec.type}</td><td class="p-3 text-gray-500 dark:text-gray-400 text-xs">${details}</td><td class="p-3"><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${rec.status}</span></td></tr>`;
+                    }).join('')}</tbody></table></div>`;
+            } else {
+                mainContentContainer.innerHTML = createNoDataPlaceholder('No Records Found', `Your ${title.toLowerCase()} is empty.`);
+            }
+        }
+        
+        // --- HELPER & UTILITY FUNCTIONS ---
+        function generateReferralCode() { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let result = ''; for (let i = 0; i < 7; i++) { result += chars.charAt(Math.floor(Math.random() * chars.length)); } return result; }
+        
+        async function getUpline(userUid, levels = 3) {
+            const upline = {};
+            let currentUid = userUid;
+            for (let i = 1; i <= levels; i++) {
+                if (!currentUid) break;
+                const snapshot = await get(ref(database, `users/${currentUid}/profile/referredBy`));
+                const parentUid = snapshot.val();
+                if (parentUid) {
+                    upline[`level${i}`] = parentUid;
+                    currentUid = parentUid;
+                } else {
+                    break;
+                }
+            }
+            return upline;
+        }
+
+        function createNoDataPlaceholder(title, message) { const noDataSVG = document.getElementById('no-data-svg').innerHTML; return `<div class="no-data-placeholder my-6">${noDataSVG}<h3>${title}</h3><p>${message}</p></div>`; }
+
+        function createProfileLinkHTML(item) {
+            let { name, icon, target } = item;
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(target);
+            if (isEmail && !target.startsWith('mailto:')) {
+                target = `mailto:${target}`;
+            }
+
+            const isExternalLink = /^(https?:\/\/|mailto:|wa\.me|t\.me)/.test(target);
+            let linkHTML = '';
+            
+            if (isExternalLink) {
+                linkHTML = `<a href="${target}" target="_blank" class="bg-white dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 shadow">`;
+            } else if (target === '#leaderboard') {
+                 linkHTML = `<a href="${target}" class="nav-link bg-white dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 shadow" data-target="leaderboard">`;
+            } else {
+                const encodedContent = btoa(encodeURIComponent(target));
+                linkHTML = `<a href="#" class="profile-text-link bg-white dark:bg-gray-800 p-4 rounded-lg flex items-center justify-between hover:bg-gray-100 dark:hover:bg-gray-700 shadow" data-modal-title="${name}" data-modal-content="${encodedContent}">`;
+            }
+            
+            return `${linkHTML}<div class="flex items-center"><i class="ri-${icon}-line text-xl text-teal-500 dark:text-teal-400 mr-4"></i><span class="font-bold">${name}</span></div><i class="ri-arrow-right-s-line text-gray-500 dark:text-gray-400"></i></a>`;
+        }
+        
+        function createPlanCardHTML(plan, options = {}) {
+            const { isActive = false, showBuyButton = true, isLanding = false, isPurchased = false } = options;
+            
+            let dailyProfit = 0;
+            let totalProfit = 0;
+            let dailyProfitText = '';
+
+            const investment = plan.investment || 0;
+            const duration = plan.duration || 1;
+
+            if (plan.profitMultiplier) {
+                totalProfit = investment * plan.profitMultiplier;
+                dailyProfit = totalProfit / duration;
+                dailyProfitText = `$${dailyProfit.toFixed(3)} Daily`; 
+            } else if (plan.profitType === 'percentage') {
+                dailyProfit = investment * ((plan.profitValue || 0) / 100);
+                totalProfit = dailyProfit * duration;
+                dailyProfitText = `${plan.profitValue || 0}% Daily`;
+            } else {
+                dailyProfit = plan.profitValue || 0;
+                totalProfit = dailyProfit * duration;
+                dailyProfitText = `$${dailyProfit.toFixed(2)} Daily`;
+            }
+
+            if (isLanding) {
+                const promoOrActiveHTML = plan.promoBannerText ? `<div class="promo-banner">${plan.promoBannerText}</div>` : '';
+                return `<div class="plan-card relative flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-lg transition-transform hover:scale-105">
+                            ${promoOrActiveHTML}
+                            ${plan.image ? `<img src="${plan.image}" class="w-full h-48 object-cover rounded-t-2xl" alt="${plan.name}" loading="lazy">` : ''}
+                            <div class="p-6 flex-grow flex flex-col">
+                                <h3 class="font-bold text-xl text-gray-900 dark:text-white mb-3">${plan.name}</h3>
+                                <div class="grid grid-cols-2 gap-4 mb-4 text-center">
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Investment</p>
+                                        <p class="font-bold text-lg text-gray-900 dark:text-white">$${investment}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Profit</p>
+                                        <p class="font-bold text-lg text-teal-500 dark:text-teal-400">$${totalProfit.toFixed(2)}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 flex justify-between"><span>Daily Profit:</span> <span class="font-semibold text-gray-800 dark:text-white">${dailyProfitText}</span></p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 flex justify-between"><span>Duration:</span> <span class="font-semibold text-gray-800 dark:text-white">${duration} Days</span></p>
+                                </div>
+                            </div>
+                        </div>`;
+            }
+            
+            const daysRemainingHTML = isActive ? `
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <i class="ri-calendar-event-line text-teal-500 dark:text-teal-400"></i> 
+                    Days Remaining: <span id="days-remaining-${plan.planKey}" class="font-bold text-gray-900 dark:text-white">...</span>
+                </p>` : `
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <i class="ri-time-line text-teal-500 dark:text-teal-400"></i> 
+                    Duration: <span class="font-bold text-gray-900 dark:text-white">${duration} Days</span>
+                </p>`;
+            
+            const containerClass = `plan-card relative flex flex-col p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg`;
+            const buyButtonHTML = isPurchased ? `<button class="buy-plan-btn mt-3 bg-gray-400 dark:bg-gray-600 text-white font-bold text-sm py-2 px-5 rounded-lg cursor-not-allowed" disabled>Already Active</button>` : `<button data-plan-id="${plan.id}" class="buy-plan-btn mt-3 bg-blue-600 text-white font-bold text-sm py-2 px-5 rounded-lg hover:bg-blue-700">Buy Now</button>`;
+            const statusHTML = isActive ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">ACTIVE</div>` : (plan.promoBannerText ? `<div class="promo-banner">${plan.promoBannerText}</div>` : '');
+            const claimHTML = isActive ? `<div class="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">Daily Progress</p>
+                                                <div id="timer-${plan.planKey}" class="text-xs font-mono text-teal-500 dark:text-teal-400" style="display: none;"></div>
+                                            </div>
+                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                                <div id="progress-${plan.planKey}" class="bg-teal-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                            </div>
+                                            <button id="claim-${plan.planKey}" data-plan-key="${plan.planKey}" class="claim-btn w-full mt-3 bg-teal-500 text-white font-bold py-2 rounded-lg hover:bg-teal-600 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed" disabled>Claim Reward</button>
+                                          </div>` : '';
+
+            const imageHTML = plan.image
+                ? `<img src="${plan.image}" class="w-24 h-24 flex-shrink-0 object-cover rounded-lg" alt="${plan.name}" loading="lazy">`
+                : `<div class="w-24 h-24 flex-shrink-0 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center"><i class="ri-image-line text-4xl text-gray-400 dark:text-gray-500"></i></div>`;
+
+            return `<div class="${containerClass}">${statusHTML}<div class="flex items-center">${imageHTML}<div class="flex-1 ml-4"><h3 class="font-bold text-lg text-gray-900 dark:text-white">${plan.name}</h3><p class="text-gray-700 dark:text-gray-300 text-sm mt-1">Investment: <span class="font-bold text-gray-900 dark:text-white">$${investment}</span> | Profit: <span class="font-bold text-gray-900 dark:text-white">$${totalProfit.toFixed(2)}</span></p>${daysRemainingHTML}<div class="mt-2 text-xs border-t border-gray-200 dark:border-gray-700 pt-2"><p class="text-teal-600 dark:text-teal-400">${dailyProfitText} <span class="text-gray-600 dark:text-gray-400"></span></p></div></div></div>${showBuyButton ? buyButtonHTML : ''}${claimHTML}</div>`;
+        }
+        
+        async function buyPlan(planId, buyButton) {
+            const plan = appSettings.plans[planId];
+            if (!plan) { showAlert("Error", "Plan not found."); return; }
+            const userWallet = currentUserData.wallet || {};
+            const availableFunds = (userWallet.deposited || 0) + (userWallet.commission || 0);
+            if (availableFunds < plan.investment) { showAlert("Insufficient Funds", `You need $${plan.investment.toFixed(2)} in your deposited or commission balance. You have $${availableFunds.toFixed(2)}.`); return; }
+            
+            const activePlans = currentUserData.activePlans || {};
+            const isAlreadyActive = Object.values(activePlans).some(p => p.id === planId);
+            if(isAlreadyActive) { showAlert("Plan Active", "You have already purchased this plan."); return; }
+            if (!confirm(`Are you sure you want to buy "${plan.name}" for $${plan.investment}? This will be deducted from your balance.`)) return;
+
+            buyButton.disabled = true;
+            buyButton.innerHTML = `<i class="ri-loader-4-line animate-spin mr-2"></i>Processing...`;
+
+            try {
+                const currentUser = auth.currentUser;
+                const buyerUid = currentUser.uid;
+                const buyerProfile = currentUserData.profile || {};
+                const updates = {};
+                
+                let costRemaining = plan.investment;
+                let newDeposited = userWallet.deposited || 0;
+                let newCommission = userWallet.commission || 0;
+                const fromDeposited = Math.min(newDeposited, costRemaining);
+                newDeposited -= fromDeposited;
+                costRemaining -= fromDeposited;
+                if (costRemaining > 0) {
+                    const fromCommission = Math.min(newCommission, costRemaining);
+                    newCommission -= fromCommission;
+                }
+                updates[`/users/${buyerUid}/wallet/deposited`] = newDeposited;
+                updates[`/users/${buyerUid}/wallet/commission`] = newCommission;
+
+                const purchaseTimestamp = new Date();
+                const expiryTimestamp = new Date(purchaseTimestamp.getTime() + plan.duration * 24 * 60 * 60 * 1000);
+                const newActivePlanRef = push(ref(database, `users/${buyerUid}/activePlans`));
+                updates[`/users/${buyerUid}/activePlans/${newActivePlanRef.key}`] = { ...plan, id: planId, purchaseDate: purchaseTimestamp.toISOString(), expiryDate: expiryTimestamp.toISOString(), lastClaimDate: purchaseTimestamp.toISOString() };
+                const transactionRef = push(ref(database, `users/${buyerUid}/transactions/other`));
+                updates[`/users/${buyerUid}/transactions/other/${transactionRef.key}`] = { amount: plan.investment, type: 'Plan Purchase', details: `Purchased ${plan.name}`, timestamp: purchaseTimestamp.toISOString(), status: 'approved' };
+                
+                if (buyerProfile.status !== 'active') {
+                    updates[`/users/${buyerUid}/profile/status`] = 'active';
+                }
+
+                await update(ref(database), updates);
+                showAlert("Success", `You have successfully purchased the "${plan.name}".`);
+            } catch (error) {
+                showAlert("Error", "There was an error purchasing the plan. " + error.message);
+                console.error("Purchase error: ", error);
+            } finally {
+                buyButton.disabled = false;
+                buyButton.innerHTML = `Buy Now`;
+            }
+        }
+        
+        function showAlert(title, message) { document.getElementById('alert-title').textContent = title; document.getElementById('alert-message').textContent = message; document.getElementById('alert-modal').style.display = 'flex'; }
+        function showTextModal(title, content) {
+            const modal = document.getElementById('text-content-modal');
+            document.getElementById('text-modal-title').textContent = title;
+            document.getElementById('text-modal-body').innerHTML = content;
+            modal.style.display = 'flex';
+        }
+
+        function setupSlider() {
+            const container = document.getElementById('image-slider-container');
+            const slider = document.getElementById('slider-inner');
+            const dots = document.getElementById('slider-dots');
+            if (!slider || !dots || !container) return;
+
+            slider.innerHTML = '';
+            dots.innerHTML = '';
+            
+            const sliderData = appSettings.sliderImages || {};
+            const images = Array.isArray(sliderData) ? sliderData : Object.values(sliderData);
+            
+            if (images.length === 0) {
+                container.innerHTML = createNoDataPlaceholder("No Promotions", "Promotions will appear here.");
+                return;
+            }
+
+            images.forEach(slide => {
+                const link = document.createElement('a');
+                link.href = slide.linkUrl || '#';
+                link.className = 'w-full flex-shrink-0';
+                if (slide.linkUrl) link.target = '_blank';
+                const img = document.createElement('img');
+                img.src = slide.imageUrl;
+                img.className = "w-full h-48 object-cover";
+                img.loading = "lazy";
+                link.appendChild(img);
+                slider.appendChild(link);
+            });
+
+            const total = images.length; if (total <= 1) return; let current = 0; let autoSlideInterval = null;
+            for (let i = 0; i < total; i++) { const d = document.createElement('div'); d.className = `w-2 h-2 rounded-full cursor-pointer transition-colors ${i === 0 ? 'bg-white' : 'bg-gray-500/50'}`; d.onclick = () => { current = i; update(); resetAutoSlide(); }; dots.appendChild(d); }
+            const update = (animate = true) => { slider.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none'; slider.style.transform = `translateX(-${current * 100}%)`; dots.childNodes.forEach((d, i) => d.className = `w-2 h-2 rounded-full cursor-pointer transition-colors ${i === current ? 'bg-white' : 'bg-gray-500/50'}`); };
+            const startAutoSlide = () => { autoSlideInterval = setInterval(() => { current = (current + 1) % total; update(); }, 3000); };
+            const resetAutoSlide = () => { clearInterval(autoSlideInterval); startAutoSlide(); }; startAutoSlide();
+            let startX = 0, moveX = 0, isDragging = false;
+            const onDragStart = (e) => { isDragging = true; startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; clearInterval(autoSlideInterval); };
+            const onDragMove = (e) => { if (!isDragging) return; moveX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX; const diff = moveX - startX; slider.style.transform = `translateX(calc(-${current * 100}% + ${diff}px))`; slider.style.transition = 'none'; };
+            const onDragEnd = () => { if (!isDragging) return; isDragging = false; const diff = moveX - startX; if (Math.abs(diff) > 50) { current = diff < 0 ? (current + 1) % total : (current - 1 + total) % total; } update(); startAutoSlide(); };
+            container.addEventListener('mousedown', onDragStart); container.addEventListener('touchstart', onDragStart); container.addEventListener('mousemove', onDragMove); container.addEventListener('touchmove', onDragMove); container.addEventListener('mouseup', onDragEnd); container.addEventListener('mouseleave', onDragEnd); container.addEventListener('touchend', onDragEnd);
+        }
+        
+        function setupEarningsChart(earningsData) {
+            const ctx = document.getElementById('earningsChart'); if (!ctx) return;
+            if (earningsChart) earningsChart.destroy();
+
+            const labels = [];
+            const dataPoints = [];
+            const dailyTotals = {};
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const label = d.toLocaleDateString('en-US', { weekday: 'short' });
+                const key = d.toISOString().slice(0, 10);
+                labels.push(label);
+                dailyTotals[key] = 0;
+            }
+
+            for (const earn of Object.values(earningsData || {})) {
+                if(earn && earn.timestamp) {
+                    const key = earn.timestamp.slice(0, 10);
+                    if (dailyTotals.hasOwnProperty(key)) {
+                        dailyTotals[key] += earn.amount || 0;
+                    }
+                }
+            }
+            
+            Object.keys(dailyTotals).sort().forEach(key => {
+                dataPoints.push(dailyTotals[key]);
+            });
+
+            const isDarkMode = document.documentElement.classList.contains('dark'); 
+            const line_color = isDarkMode ? '#2dd4bf' : '#14b8a6'; 
+            const bg_color = isDarkMode ? 'rgba(45,212,191,0.1)' : 'rgba(20, 184, 166, 0.1)';
+            
+            earningsChart = new Chart(ctx, { 
+                type: 'line', 
+                data: { labels: labels, datasets: [{ data: dataPoints, borderColor: line_color, tension: 0.4, fill: true, backgroundColor: bg_color }] }, 
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { display: false } } } 
+            });
+        }
+        
+        // --- EVENT LISTENERS ---
+        function setupStaticListeners() {
+            const loginModal = document.getElementById('login-modal'), signupModal = document.getElementById('signup-modal'), forgotPasswordModal = document.getElementById('forgot-password-modal'), loginStatus = document.getElementById('login-status'), signupStatus = document.getElementById('signup-status'), textContentModal = document.getElementById('text-content-modal');
+            document.getElementById('copyright-year').textContent = new Date().getFullYear();
+            document.getElementById('login-btn-landing').addEventListener('click', () => { loginModal.style.display = 'flex'; loginStatus.textContent = ''; });
+            document.getElementById('footer-login-btn').addEventListener('click', (e) => { e.preventDefault(); loginModal.style.display = 'flex'; loginStatus.textContent = ''; });
+            document.getElementById('signup-btn-landing').addEventListener('click', () => { signupModal.style.display = 'flex'; signupStatus.textContent = ''; });
+            document.getElementById('get-started-btn').addEventListener('click', () => { signupModal.style.display = 'flex'; signupStatus.textContent = ''; });
+            document.getElementById('close-login-modal').addEventListener('click', () => loginModal.style.display = 'none');
+            document.getElementById('close-signup-modal').addEventListener('click', () => signupModal.style.display = 'none');
+            document.getElementById('close-profile-modal').addEventListener('click', () => document.getElementById('profile-edit-modal').style.display = 'none');
+            document.getElementById('forgot-password-link').addEventListener('click', (e) => { e.preventDefault(); loginModal.style.display = 'none'; forgotPasswordModal.style.display = 'flex'; });
+            document.getElementById('close-forgot-modal').addEventListener('click', () => forgotPasswordModal.style.display = 'none');
+            document.getElementById('alert-close-btn').addEventListener('click', () => document.getElementById('alert-modal').style.display = 'none');
+            document.getElementById('close-text-modal').addEventListener('click', () => textContentModal.style.display = 'none');
+            
+            const installBtnLanding = document.getElementById('install-app-btn-landing');
+            if (installBtnLanding) installBtnLanding.addEventListener('click', handleAppInstall);
+
+            document.getElementById('landing-page').addEventListener('click', function(e) {
+                const textLink = e.target.closest('.footer-text-link');
+                if (textLink) {
+                    e.preventDefault();
+                    const modalName = textLink.dataset.modalName;
+                    const title = textLink.textContent;
+                    const content = (appSettings.profileLinks || {})[modalName] || '<p>Content not available.</p>';
+                    showTextModal(title, content);
+                }
+            });
+
+            document.getElementById('google-login-btn').addEventListener('click', handleGoogleSignIn);
+            document.getElementById('google-signup-btn').addEventListener('click', handleGoogleSignIn);
+
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault(); loginStatus.textContent = 'Logging in...'; loginStatus.className = 'text-yellow-400 text-sm mt-2 text-center';
+                const email = e.target.elements['login-email'].value;
+                const password = e.target.elements['login-password'].value;
+                signInWithEmailAndPassword(auth, email, password).then(userCredential => {
+                    if (userCredential.user && !userCredential.user.emailVerified) {
+                        signOut(auth);
+                        loginStatus.innerHTML = `Your email is not verified. Please check your inbox or spam folder.<br><button id="resend-verify-btn" class="text-teal-400 underline mt-2">Resend Verification Email</button>`;
+                        document.getElementById('resend-verify-btn').onclick = () => { sendEmailVerification(userCredential.user); loginStatus.textContent = 'A new verification email has been sent.'; loginStatus.className = 'text-green-500 text-sm mt-2 text-center'; };
+                    } else { 
+                        loginModal.style.display = 'none'; e.target.reset(); 
+                    }
+                }).catch(err => { 
+                    loginStatus.textContent = "Error: " + (err.code || err.message); 
+                    loginStatus.className = 'text-red-500 text-sm mt-2 text-center'; 
+                });
+            });
+            
+             document.getElementById('forgot-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const statusEl = document.getElementById('forgot-status');
+                statusEl.textContent = "Sending reset link...";
+                statusEl.className = 'text-yellow-400 text-sm mt-4 text-center';
+                sendPasswordResetEmail(auth, e.target.elements['forgot-email'].value)
+                    .then(() => {
+                        statusEl.textContent = "Password reset link sent to your email!";
+                        statusEl.className = 'text-green-500 text-sm mt-4 text-center';
+                    })
+                    .catch((error) => {
+                        statusEl.textContent = `Error: ${error.message}`;
+                        statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+                    });
+            });
+
+            document.getElementById('signup-form').addEventListener('submit', async (e) => {
+                e.preventDefault(); 
+                const p1 = e.target.elements['signup-password'].value;
+                const p2 = e.target.elements['signup-confirm-password'].value;
+                if (p1 !== p2) { signupStatus.textContent = "Passwords do not match."; signupStatus.className = "text-red-500 text-sm mt-4 text-center"; return; }
+                signupStatus.textContent = 'Creating account...'; signupStatus.className = 'text-yellow-400 text-sm mt-4 text-center';
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, e.target.elements['signup-email'].value, p1);
+                    const user = userCredential.user;
+                    
+                    const newUserUid = user.uid;
+                    const username = e.target.elements['signup-username'].value;
+                    let referredByUid = null;
+                    const refCode = document.getElementById('signup-referral').value.trim();
+
+                    if (refCode) {
+                        const q = query(ref(database, 'users'), orderByChild('profile/referralCode'), equalTo(refCode));
+                        const snapshot = await get(q);
+                        if (snapshot.exists()) {
+                            referredByUid = Object.keys(snapshot.val())[0];
+                        }
+                    }
+                    
+                    const newUserNode = ref(database, 'users/' + newUserUid);
+                    const newUserdata = { 
+                        profile: { 
+                            username: username, 
+                            email: user.email, 
+                            name: username, 
+                            avatar: `https://i.pravatar.cc/150?u=${newUserUid}`, 
+                            referralCode: generateReferralCode(), 
+                            referredBy: referredByUid || null, 
+                            status: 'inactive' 
+                        }, 
+                        wallet: { deposited: 0, withdrawable: 0, commission: 0 }, 
+                        activePlans: {}, 
+                        team: {}, 
+                        transactions: {} 
+                    };
+
+                    await set(newUserNode, newUserdata);
+                    await sendEmailVerification(user);
+                    await signOut(auth);
+                    
+                    showAlert("Account Created Successfully!", "A verification link has been sent to your email. Please check your inbox (and spam folder) to verify your account before logging in.");
+                    signupStatus.textContent = ""; signupModal.style.display = 'none'; e.target.reset();
+                } catch (err) { signupStatus.textContent = "Error: " + (err.code || err.message); signupStatus.className = 'text-red-500 text-sm mt-4 text-center'; }
+            });
+
+            document.getElementById('main-content-container').addEventListener('click', function(e) {
+                const buyButton = e.target.closest('.buy-plan-btn'); if (buyButton && !buyButton.disabled) { const planId = buyButton.dataset.planId; if (planId) buyPlan(planId, buyButton); }
+                const claimButton = e.target.closest('.claim-btn'); if (claimButton && !claimButton.disabled) { const planKey = claimButton.dataset.planKey; if (planKey) handleClaim(planKey); }
+                const textLink = e.target.closest('.profile-text-link'); if (textLink) { e.preventDefault(); const title = textLink.dataset.modalTitle; const content = decodeURIComponent(atob(textLink.dataset.modalContent)); showTextModal(title, content); }
+                
+                const installButton = e.target.closest('#install-app-btn-dashboard');
+                if (installButton) {
+                    e.preventDefault();
+                    handleAppInstall();
+                }
+                
+                const filterButton = e.target.closest('.filter-btn');
+                if (filterButton && filterButton.parentElement.id === 'leaderboard-filters') {
+                    const tab = filterButton.dataset.tab;
+                    filterButton.parentElement.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    filterButton.classList.add('active');
+
+                    const earnersList = document.getElementById('earners-list');
+                    const recruitersList = document.getElementById('recruiters-list');
+                    if (earnersList && recruitersList) {
+                        if (tab === 'earners') {
+                            earnersList.classList.remove('hidden');
+                            recruitersList.classList.add('hidden');
+                        } else {
+                            earnersList.classList.add('hidden');
+                            recruitersList.classList.remove('hidden');
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('profile-update-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const updateBtn = e.target.querySelector('button[type="submit"]');
+                updateBtn.disabled = true;
+                updateBtn.textContent = 'Updating...';
+
+                const profileData = {
+                    name: document.getElementById('profile-name').value,
+                    address: document.getElementById('profile-address').value,
+                    age: parseInt(document.getElementById('profile-age').value) || null,
+                    dob: document.getElementById('profile-dob').value
+                };
+
+                try {
+                    const user = auth.currentUser;
+                    if (user) {
+                        await update(ref(database, `/users/${user.uid}/profile`), profileData);
+                        showAlert("Success", "Your profile has been updated successfully.");
+                        document.getElementById('profile-edit-modal').style.display = 'none';
+                    } else {
+                        throw new Error("No user is currently signed in.");
+                    }
+                } catch (error) {
+                    console.error("Profile update failed:", error);
+                    showAlert("Error", "Failed to update profile: " + error.message);
+                } finally {
+                    updateBtn.disabled = false;
+                    updateBtn.textContent = 'Update Profile';
+                }
+            });
+
+            document.body.addEventListener('submit', function(e) {
+                if (e.target.id === 'change-pass-form') {
+                    e.preventDefault();
+                    const user = auth.currentUser;
+                    const statusEl = document.getElementById('change-pass-status');
+                    const currentPass = document.getElementById('current-pass').value;
+                    const newPass = document.getElementById('new-pass').value;
+                    const confirmPass = document.getElementById('confirm-new-pass').value;
+
+                    if (newPass !== confirmPass) {
+                        statusEl.textContent = 'New passwords do not match.';
+                        statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+                        return;
+                    }
+
+                    statusEl.textContent = 'Updating...';
+                    statusEl.className = 'text-yellow-400 text-sm mt-4 text-center';
+
+                    const credential = EmailAuthProvider.credential(user.email, currentPass);
+                    reauthenticateWithCredential(user, credential).then(() => {
+                        return updatePassword(user, newPass);
+                    }).then(() => {
+                        statusEl.textContent = 'Password updated successfully!';
+                        statusEl.className = 'text-green-500 text-sm mt-4 text-center';
+                        e.target.reset();
+                    }).catch((error) => {
+                        statusEl.textContent = `Error: ${error.message}`;
+                        statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+                    });
+                }
+            });
+        }
+        
+        function setupDashboardListeners() {
+            const sidebar = document.getElementById('sidebar'), overlay = document.getElementById('sidebar-overlay');
+            const open = () => { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('opacity-0','pointer-events-none'); };
+            const close = () => { sidebar.classList.add('-translate-x-full'); overlay.classList.add('opacity-0','pointer-events-none'); };
+            document.getElementById('open-sidebar').addEventListener('click', open); document.getElementById('close-sidebar').addEventListener('click', close); overlay.addEventListener('click', close);
+            document.body.addEventListener('click', function(e) {
+                const link = e.target.closest('.nav-link, .sidebar-link'); const logoutBtn = e.target.closest('#logout-btn-sidebar, #logout-btn-profile');
+                if (logoutBtn) { e.preventDefault(); handleLogout(); } 
+                else if (link) { e.preventDefault(); const target = link.dataset.target; if (target && target !== 'logout') { window.location.hash = target; } if (window.innerWidth < 768) close(); }
+            });
+            window.addEventListener('hashchange', handleHashChange);
+        }
+        
+        function updateActiveLink(target) { document.querySelectorAll('.nav-link, .sidebar-link').forEach(l=>{ l.classList.remove('active-nav'); if(l.dataset.target === target) l.classList.add('active-nav'); }); }
+
+        async function handleGoogleSignIn() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                const userRef = ref(database, 'users/' + user.uid);
+                const snapshot = await get(userRef);
+
+                if (!snapshot.exists()) {
+                    let referredByUid = null;
+                    if(referralCodeFromUrl){
+                        const q = query(ref(database, 'users'), orderByChild('profile/referralCode'), equalTo(referralCodeFromUrl));
+                        const refSnapshot = await get(q);
+                        if(refSnapshot.exists()){
+                            referredByUid = Object.keys(refSnapshot.val())[0];
+                        }
+                    }
+                    
+                    const newUserdata = {
+                        profile: { 
+                            username: user.displayName, 
+                            email: user.email, 
+                            name: user.displayName, 
+                            avatar: user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`, 
+                            referralCode: generateReferralCode(), 
+                            referredBy: referredByUid || null, 
+                            status: 'inactive'
+                        },
+                        wallet: { deposited: 0, withdrawable: 0, commission: 0 }, 
+                        activePlans: {}, 
+                        team: {}, 
+                        transactions: {}
+                    };
+                    await set(userRef, newUserdata);
+                }
+                document.getElementById('login-modal').style.display = 'none';
+                document.getElementById('signup-modal').style.display = 'none';
+            } catch (error) {
+                console.error("Google Sign-In Error:", error);
+                const statusEl = document.getElementById('login-status') || document.getElementById('signup-status');
+                statusEl.textContent = `Google Sign-In Failed: ${error.message}`;
+                statusEl.className = 'text-red-500 text-sm mt-4 text-center';
+            }
+        }
+
+        // --- CLAIMING LOGIC ---
+        function startClaimTimers() {
+            if (!currentUserData || !currentUserData.activePlans) return;
+            const activePlans = currentUserData.activePlans;
+            const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+
+            Object.keys(activePlans).forEach(planKey => {
+                const plan = activePlans[planKey];
+                const timerEl = document.getElementById(`timer-${planKey}`);
+                const progressBar = document.getElementById(`progress-${planKey}`);
+                const claimButton = document.getElementById(`claim-${planKey}`);
+                const daysRemainingEl = document.getElementById(`days-remaining-${planKey}`);
+
+                if (!timerEl || !progressBar || !claimButton) return;
+                
+                if(daysRemainingEl && plan.expiryDate) {
+                    const remainingDays = Math.max(0, Math.ceil((new Date(plan.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+                    daysRemainingEl.textContent = remainingDays;
+                }
+
+                const lastClaimTime = new Date(plan.lastClaimDate || plan.purchaseDate).getTime();
+                const nextClaimTime = lastClaimTime + TWENTY_FOUR_HOURS_MS;
+                
+                const updateTimer = () => {
+                    const now = new Date().getTime();
+                    const remainingTime = nextClaimTime - now;
+
+                    if (remainingTime <= 0) {
+                        progressBar.style.width = '100%';
+                        claimButton.disabled = false;
+                        timerEl.style.display = 'none';
+                        if (activeTimers[planKey]) {
+                            clearInterval(activeTimers[planKey]);
+                            delete activeTimers[planKey];
+                        }
+                    } else {
+                        const timeElapsed = TWENTY_FOUR_HOURS_MS - remainingTime;
+                        const progress = Math.min(100, (timeElapsed / TWENTY_FOUR_HOURS_MS) * 100);
+                        progressBar.style.width = `${progress}%`;
+                        claimButton.disabled = true;
+                        const hours = Math.floor(remainingTime / (1000 * 60 * 60)).toString().padStart(2, '0');
+                        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                        timerEl.textContent = `${hours}:${minutes}:${seconds}`;
+                        timerEl.style.display = 'block';
+                    }
+                };
+                
+                if (activeTimers[planKey]) clearInterval(activeTimers[planKey]);
+                updateTimer();
+                activeTimers[planKey] = setInterval(updateTimer, 1000);
+            });
+        }
+        
+        async function handleClaim(planKey) {
+            const claimButton = document.getElementById(`claim-${planKey}`);
+            claimButton.disabled = true;
+            const plan = (currentUserData.activePlans || {})[planKey]; 
+            if (!plan) { showAlert("Error", "Could not find the plan to claim."); return; }
+            
+            const lastClaimTime = new Date(plan.lastClaimDate || plan.purchaseDate).getTime(); 
+            if (new Date().getTime() - lastClaimTime < (23.99 * 60 * 60 * 1000)) { 
+                showAlert("Not Yet", "You can only claim the reward once every 24 hours."); 
+                claimButton.disabled = false;
+                return; 
+            }
+            
+            let dailyProfit = 0;
+            const investment = plan.investment || 0;
+            const duration = plan.duration || 1;
+
+            if (plan.profitMultiplier) {
+                const totalProfit = investment * plan.profitMultiplier;
+                dailyProfit = totalProfit / duration;
+            } else if (plan.profitType === 'percentage') {
+                dailyProfit = investment * ((plan.profitValue || 0) / 100);
+            } else {
+                dailyProfit = plan.profitValue || 0;
+            }
+
+            if (isNaN(dailyProfit) || dailyProfit <= 0) { 
+                showAlert("Error", "Could not determine daily profit for this plan."); 
+                claimButton.disabled = false;
+                return; 
+            }
+
+            const currentUser = auth.currentUser; 
+            const currentWallet = currentUserData.wallet || {};
+            const currentWithdrawable = currentWallet.withdrawable || 0; 
+            const newWithdrawable = currentWithdrawable + dailyProfit; 
+            const newTimestamp = new Date().toISOString();
+            
+            const updates = {}; 
+            updates[`/users/${currentUser.uid}/activePlans/${planKey}/lastClaimDate`] = newTimestamp; 
+            updates[`/users/${currentUser.uid}/wallet/withdrawable`] = newWithdrawable;
+            
+            const earningRef = push(ref(database, `users/${currentUser.uid}/transactions/earnings`));
+            updates[`/users/${currentUser.uid}/transactions/earnings/${earningRef.key}`] = { amount: dailyProfit, planId: plan.id, planName: plan.name, timestamp: newTimestamp, status: 'approved' };
+
+            const userProfile = currentUserData.profile || {};
+            if ((appSettings.referral?.commissionOnEarnings || false) && userProfile.referredBy) {
+                const uplineUids = await getUpline(currentUser.uid);
+                const commissionRates = appSettings.referralCommission || {};
+
+                for (const [level, levelNum] of [['level1', 1], ['level2', 2], ['level3', 3]]) {
+                    const referrerUid = uplineUids[level];
+                    if (referrerUid) {
+                        const referrerSnap = await get(ref(database, `users/${referrerUid}`));
+                        if (referrerSnap.exists()) {
+                            const referrerData = referrerSnap.val() || {};
+                            
+                            if (levelNum > 1) {
+                                const totalDeposit = Object.values(referrerData.transactions?.deposits || {}).filter(d => d.status === 'approved').reduce((sum, d) => sum + (d.amount || 0), 0);
+                                if (totalDeposit < (appSettings.referral?.unlockThreshold || 500)) continue;
+                            }
+
+                            const rate = commissionRates[level] || 0;
+                            const commissionAmount = dailyProfit * (rate / 100);
+
+                            if (commissionAmount > 0) {
+                                const commissionRouting = appSettings.referral?.commissionRouting || 'separate';
+                                const targetWallet = commissionRouting === 'deposited' ? 'deposited' : commissionRouting === 'withdrawable' ? 'withdrawable' : 'commission';
+
+                                const referrerWallet = referrerData.wallet || {};
+                                const currentBalance = referrerWallet[targetWallet] || 0;
+                                updates[`/users/${referrerUid}/wallet/${targetWallet}`] = currentBalance + commissionAmount;
+                                
+                                const currentTeamCommission = referrerData.team?.[level]?.commission || 0;
+                                updates[`/users/${referrerUid}/team/${level}/commission`] = currentTeamCommission + commissionAmount;
+
+                                const commissionTransRef = push(ref(database, `users/${referrerUid}/transactions/commission`));
+                                updates[`/users/${referrerUid}/transactions/commission/${commissionTransRef.key}`] = { 
+                                    amount: commissionAmount, 
+                                    type: 'Commission', 
+                                    details: `Level ${levelNum} commission from ${userProfile.name}'s earnings`, 
+                                    timestamp: newTimestamp, 
+                                    status: 'approved' 
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            
+            try {
+                await update(ref(database), updates);
+                showAlert("Success!", `You have successfully claimed $${dailyProfit.toFixed(2)} from your ${plan.name} plan.`);
+            } catch (error) {
+                showAlert("Claim Failed", "An error occurred while claiming your reward: " + error.message);
+                claimButton.disabled = false;
+            }
+        }
+    </script>
+    
+    <!-- PWA Service Worker Registration Script -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
